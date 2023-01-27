@@ -31,13 +31,6 @@
 
 #pragma endregion
 
-#include "sdk/inc/main.h"
-#include "sdk/inc/enums.h"
-#include "sdk/inc/natives.h"
-#include "sdk/inc/types.h"
-
-void scriptMain();
-
 void initialize();
 
 void unload();

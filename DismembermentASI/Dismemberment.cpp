@@ -4,9 +4,11 @@
 
 using namespace Game;
 
-#define ARR_SIZE 256
-
 #define DLL_EXPORT extern "C" __declspec( dllexport )
+
+typedef CPed* Cped;
+
+typedef int Ped;
 
 typedef __int64 (__fastcall *fragCache__DrawSkeleton)(rage::fragCache*, void*, int, CBaseModelInfo*, int, __int64, uint8_t, uint8_t, short, short, float);
 
@@ -28,8 +30,6 @@ struct DrawSkeletonInfo
 std::map<Ped, DrawSkeletonInfo> g_pedList;
 
 std::mutex g_mutex;
-
-typedef CPed* Cped;
 
 /**
  * Main function where the skeleton is drawn by the engine.
@@ -132,31 +132,9 @@ DLL_EXPORT void RemoveBoneDraw(Ped handle)
 	}
 }
 
-#ifdef _DEBUG
-void scriptMain()
+void unload() 
 {
-	while (true)
-	{
-		if (GetAsyncKeyState(VK_F7) & 1)
-		{
-			Ped peds[ARR_SIZE];
-
-			auto count = worldGetAllPeds(peds, ARR_SIZE);
-
-			for (int i = 0; i < count; i++)
-			{
-				AddBoneDraw(peds[i], SKEL_Pelvis, -1);
-			}
-		}
-
-		WAIT(0);
-	}
-}
-#endif
-
-void unload() {
-
-	for (auto & function : g_drawFunctions)
+	for (auto& function : g_drawFunctions)
 	{
 		delete function;
 	}
