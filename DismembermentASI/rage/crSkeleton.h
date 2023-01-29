@@ -2,23 +2,35 @@
 
 namespace rage
 {
-	struct crBone
-	{
-		int m_boneId; // unique hash ID for this bone
-		int m_index; // index of this bone in the skeleton
-		int64_t *m_nextBoneInPair; //??
-	};
-
 	struct crBoneData
 	{
 		Matrix34 m_offset; //0x0-0x30
 		int16_t m_nextSiblingIndex; // 0x30-0x32
 		int16_t m_parentBoneIndex; //0x32-0x34
-		int m_unk; //0x34-0x38
+		int32_t m_unk; //0x34-0x38
 		const char *m_boneName; //0x38-0x40
-		int16_t m_unkIndex; // 0x40-0x42
+		enum crBoneFlags : uint16_t
+		{
+			None = 0,
+			RotX = 0x1,
+			RotY = 0x2,
+			RotZ = 0x4,
+			LimitRotation = 0x8,
+			TransX = 0x10,
+			TransY = 0x20,
+			TransZ = 0x40,
+			LimitTranslation = 0x80,
+			ScaleX = 0x100,
+			ScaleY = 0x200,
+			ScaleZ = 0x400,
+			LimitScale = 0x800,
+			Unk0 = 0x1000,
+			Unk1 = 0x2000,
+			Unk2 = 0x4000,
+			Unk3 = 0x8000,
+		} m_flags; // 0x40-0x42
 		int16_t m_boneIndex; //0x42-0x44
-		int16_t m_boneId; //0x44-0x48
+		uint16_t m_boneId; //0x44-0x48
 		int32_t m_unk48; //0x48-0x4C
 		int32_t m_unk4C; //0x4C-0x50
 
@@ -35,22 +47,19 @@ namespace rage
 		virtual __int64 m_xy() = 0;
 		virtual void m_xz() = 0; // 'ERR_GEN_PAGE_1'
 
-		pgPtr<crBone> m_boneMap; //0x10-0x18
-		uint16_t m_size; //0x18-0x1A
-		uint16_t m_count; //0x1A-0x1C
-		uint32_t m_unk1C;//0x1C-0x20
+		pgHashMap<int32_t> m_boneTag; //0x10 - 0x20
 		pgPtr<crBoneData> m_boneData; //0x20-0x28
 		pgPtr<Matrix44> m_invertedTransforms; //0x28-0x30
 		pgPtr<Matrix44> m_transformations; //0x30-0x38
 		pgPtr<uint16_t> m_parentIndices; //0x38-0x40
-		pgPtr<Matrix44> m_unkIndices; //0x40-0x48
+		pgPtr<uint16_t> m_childIndices; //0x40-0x48
 		pgPtr<void> m_properties; //0x48-0x50 unk
 		uint32_t m_unk50; //0x50-0x54
 		uint32_t m_unk54; //0x54-0x58
 		uint32_t m_unk58; //0x58-0x5C
-		uint16_t m_unkCount; //0x5C
+		uint16_t m_usageCount; //0x5C
 		uint16_t m_numBones; //0x5E-0x60
-		uint16_t m_unkCount2; //0x60-0x62
+		uint16_t m_childIndexCount; //0x60-0x62
 		uint16_t m_unk62; //0x62-0x64
 		uint32_t m_unk64; //0x64-0x68
 		uint32_t m_unk68; //0x68-0x6C
@@ -62,28 +71,25 @@ namespace rage
 			return m_boneData[boneIndex].m_boneName;
 		}
 
-		constexpr inline int GetBoneIndexForId(int boneId) const
+		inline int32_t getBoneIndexFormId(const int32_t& boneId) const 
 		{
-			if (m_count == 0)
+			if (m_boneTag.m_entryCount == 0)
 			{
-				if (boneId < m_count)
+				if (boneId < m_numBones)
 					return boneId;
 
 				return -1;
 			}
 
-			if (m_size == 0)
+			if (m_boneTag.m_bucketCount == 0)
 				return -1;
-
-			auto bonePair = (reinterpret_cast<int64_t*>(*m_boneMap) + (boneId % m_size));
-
-			for (auto pCrBone = reinterpret_cast<crBone*>(*bonePair); pCrBone != nullptr; pCrBone = reinterpret_cast<crBone*>(pCrBone->m_nextBoneInPair))
-			{
-				if (boneId == pCrBone->m_boneId)
-					return pCrBone->m_index;
-			}
+ 
+			auto boneIndex = m_boneTag.find(boneId);
+			if (boneIndex != nullptr)
+				return *boneIndex;
 
 			return -1;
+
 		}
 
 	}; static_assert(sizeof(crSkeletonData) == 0x70, "crSkeletonData is of wrong size");// sizeof=0x70

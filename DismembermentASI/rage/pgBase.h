@@ -10,11 +10,10 @@ namespace rage
 {
 	struct pgPtrRepresentation
 	{
-		uint64_t pointer : 60;
-		uint64_t blockType : 4;
+		uint32_t pointer : 28;
+		uint32_t blockType : 4;
 	};
 
-	struct BlockMap;
 
 	template<class T, bool Physical = false>
 	class pgPtr
@@ -94,5 +93,46 @@ namespace rage
 		}
 
 		virtual ~pgBase() { }
+		virtual int unk() = 0;
+		virtual void error() = 0;
 	}; static_assert(sizeof(pgBase) == 0x10, "pgBase is of wrong size");
+
+#pragma pack(push, 1)
+	template<class T>
+	class pgHashMap
+	{
+	private:
+		struct HashEntry
+		{
+			uint32_t m_hash;
+			T m_idx;
+			HashEntry* m_next;
+		}; //sizeof(HashEntry) == 0x10
+	public:
+		T** m_data;
+		uint16_t m_bucketCount;
+		uint16_t m_entryCount;
+		char pad[3];
+		bool m_resizable;
+
+		pgHashMap()
+		{
+			memset(pad, 0, sizeof(pad));
+			m_resizable = false;
+		}
+
+		inline T* find(const uint32_t& hash) const
+		{
+			for (auto i = reinterpret_cast<HashEntry*>(*(m_data + (hash % m_bucketCount))); i != nullptr; i = i->m_next)
+			{
+				if (hash == i->m_hash)
+				{
+					return &i->m_idx;
+				}
+			}
+			return nullptr;
+		}
+	}; //sizeof(pgHashMap) == 0x10
+#pragma pack(pop)
+	
 }

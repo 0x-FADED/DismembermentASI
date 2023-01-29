@@ -54,12 +54,14 @@ __int64 fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, void * drawBuff
 
 			if (pedCache && pedCache == fragCache)
 			{
-				if (it->second.startBoneId != -1) 
+				if (it->second.startBoneId != -1)
 				{
-					startBoneIndex = fragCache->m_skeleton->GetBoneIndexForId(it->second.startBoneId);
-					
+					//startBoneIndex = GetBoneIndexForId(pedAddress, it->second.startBoneId);
+					startBoneIndex = fragCache->m_skeleton->getBoneIndexFormId(it->second.startBoneId);
+
 					if (it->second.endBoneId != -1)
-						lastSiblingIndex = fragCache->m_skeleton->GetBoneIndexForId(it->second.endBoneId);
+						lastSiblingIndex = GetBoneIndexForId(pedAddress, it->second.endBoneId);
+						//lastSiblingIndex = fragCache->m_skeleton->getBoneIndexFormId(it->second.endBoneId);
 
 					else
 						lastSiblingIndex = GetLastSiblingBoneIndex(fragCache, startBoneIndex);

@@ -24,6 +24,22 @@ bool Game::InititalizeGame()
 
 #pragma endregion
 
+#pragma region getBoneIndexForId
+
+	pattern = BytePattern("E8 ? ? ? ? 41 3B C5 74 ? 48");
+
+	if (!pattern.bSuccess) {
+
+		LOG("Failed to find getBoneIndexForId pattern.");
+		return false;
+	}
+
+	result = pattern.rip(1);
+
+	addresses->insert("getBoneIndexForId", result);
+
+#pragma endregion
+
 #pragma region getEntityFragCache
 
 	pattern = BytePattern("0F BA 77 ? ? 44 8B D3");

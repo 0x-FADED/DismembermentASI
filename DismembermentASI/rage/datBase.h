@@ -2,8 +2,6 @@
 
 namespace rage
 {
-	struct BlockMap;
-
 	class datBase //0x0-0x8
 	{
 	public:
