@@ -1,24 +1,3 @@
-/* Copyright(c) 2014 Bas Timmer / NTAuthority et al.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files(the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions :
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-
 #include "..\stdafx.h"
 
 // Size of each memory block. (= page size of VirtualAlloc)
@@ -32,30 +11,41 @@ PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, int type)
 	static void* g_currentStub = nullptr;
 	static void* g_stubMemoryStart = nullptr;
 
-	if (!g_currentStub) {
+	if (!g_currentStub) 
+	{
 		SYSTEM_INFO si;
 		GetSystemInfo(&si);
 
+		MEM_ADDRESS_REQUIREMENTS addressReqs = { 0 };
+		MEM_EXTENDED_PARAMETER param = { 0 };
+
 		ULONG_PTR minAddr = (ULONG_PTR)si.lpMinimumApplicationAddress;
 
-		if ((ULONG_PTR)origin > MAX_MEMORY_RANGE &&
-			minAddr < (ULONG_PTR)origin - MAX_MEMORY_RANGE)
+		if ((ULONG_PTR)origin > MAX_MEMORY_RANGE && minAddr < (ULONG_PTR)origin - MAX_MEMORY_RANGE)
 			minAddr = (ULONG_PTR)origin - MAX_MEMORY_RANGE;
 
+		auto pVirtualAlloc2 = (decltype(&::VirtualAlloc2))GetProcAddress(GetModuleHandleA("kernelbase.dll"), "VirtualAlloc2");
 		LPVOID pAlloc = origin;
 
-		while ((ULONG_PTR)pAlloc >= minAddr) {
-			pAlloc = FindPrevFreeRegion(pAlloc, (LPVOID)minAddr,
-				si.dwAllocationGranularity);
+		while ((ULONG_PTR)pAlloc >= minAddr)
+		{
+			pAlloc = FindPrevFreeRegion(pAlloc, (LPVOID)minAddr, si.dwAllocationGranularity);
 			if (pAlloc == NULL)
 				break;
 
-			g_currentStub = VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+			addressReqs.Alignment = NULL; // 0 = any alignment
+			addressReqs.LowestStartingAddress = pAlloc;
+
+			param.Type = MemExtendedParameterAddressRequirements;
+			param.Pointer = &addressReqs;
+			
+			g_currentStub = pVirtualAlloc2(GetCurrentProcess(), nullptr, (SIZE_T)MEMORY_BLOCK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE, &param, 1);
 			if (g_currentStub != NULL)
 				g_stubMemoryStart = g_currentStub;
-				break;
+			break;
 		}
 	}
+
 	if (!g_currentStub)
 		return nullptr;
 
@@ -79,9 +69,8 @@ PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, int type)
 	return code;
 }
 
-LPVOID HookManager::FindPrevFreeRegion(LPVOID pAddress,
-	LPVOID pMinAddr,
-	DWORD dwAllocationGranularity) {
+LPVOID HookManager::FindPrevFreeRegion(LPVOID pAddress, LPVOID pMinAddr, DWORD dwAllocationGranularity) 
+{
 	ULONG_PTR tryAddr = (ULONG_PTR)pAddress;
 
 	// Round down to the next allocation granularity.
@@ -90,10 +79,10 @@ LPVOID HookManager::FindPrevFreeRegion(LPVOID pAddress,
 	// Start from the previous allocation granularity multiply.
 	tryAddr -= dwAllocationGranularity;
 
-	while (tryAddr >= (ULONG_PTR)pMinAddr) {
+	while (tryAddr >= (ULONG_PTR)pMinAddr) 
+	{
 		MEMORY_BASIC_INFORMATION mbi;
-		if (VirtualQuery((LPVOID)tryAddr, &mbi, sizeof(MEMORY_BASIC_INFORMATION)) ==
-			0)
+		if (VirtualQuery((LPVOID)tryAddr, &mbi, sizeof(MEMORY_BASIC_INFORMATION)) == NULL)
 			break;
 
 		if (mbi.State == MEM_FREE)
