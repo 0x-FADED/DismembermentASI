@@ -1,13 +1,13 @@
 #include "..\stdafx.h"
 
-void AddressPool::insert(std::string key, MemAddr address)
+void AddressPool::insert(const std::string_view key, MemAddr address)
 {
-	map.insert(std::make_pair(key, address));
+	map.try_emplace(LiteralHash::FNV1A(key), address);
 }
 
-MemAddr & AddressPool::operator[](std::string key)
+MemAddr& AddressPool::operator[](const LiteralHash key)
 {
-	return map[key];
+	return map.at(key.val);
 }
 
 void AddressMgr::clear()
@@ -20,25 +20,20 @@ size_t AddressMgr::size() const
 	return items.size();
 }
 
-void AddressMgr::insert(std::string key, std::string addressName, MemAddr address)
+AddressPool*& AddressMgr::get(const LiteralHash key)
 {
-	get(key)->insert(addressName, address);
+	return items[key.val];
 }
 
-AddressPool* & AddressMgr::get(std::string key)
+AddressPool*& AddressMgr::getOrCreate(const std::string_view str)
 {
-	return items[key];
-}
-
-AddressPool* & AddressMgr::getOrCreate(std::string key)
-{
-	auto & result = get(key);
+	auto& result = get("!exists"); //not very ideal way to check 
 
 	if (!result)
 	{
 		result = new AddressPool();
 
-		items.insert(std::make_pair(key, result));
+		items.insert_or_assign(LiteralHash::FNV1A(str), result);
 	}
 
 	return result;

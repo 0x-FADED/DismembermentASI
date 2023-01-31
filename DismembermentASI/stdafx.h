@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <memory>
 #include <algorithm>

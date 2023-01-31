@@ -8,7 +8,7 @@ using namespace Game;
 
 typedef CPed* Cped;
 
-typedef int Ped;
+using Ped = int32_t;
 
 typedef __int64 (__fastcall *fragCache__DrawSkeleton)(rage::fragCache*, void*, int, CBaseModelInfo*, int, __int64, uint8_t, uint8_t, short, short, float);
 
