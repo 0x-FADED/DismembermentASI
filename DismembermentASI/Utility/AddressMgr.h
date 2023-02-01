@@ -33,7 +33,7 @@ struct LiteralHash
 class AddressPool
 {
 private:
-	std::unordered_map<std::uint64_t, MemAddr> map;
+	ankerl::unordered_dense::map<std::uint64_t, MemAddr> map;
 public:
 	void insert(const std::string_view key, MemAddr address);
 	MemAddr& operator[](const LiteralHash key);
@@ -42,8 +42,7 @@ public:
 class AddressMgr
 {
 private:
-	std::unordered_map<std::uint64_t, AddressPool*> items;
-
+	ankerl::unordered_dense::map<std::uint64_t, AddressPool*> items;
 public:
 	void clear();
 	size_t size() const;

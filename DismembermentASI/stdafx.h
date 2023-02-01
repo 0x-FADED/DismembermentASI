@@ -1,16 +1,18 @@
 #pragma once
 
+#define NOMINMAX
 #include <windows.h>
 #include <inttypes.h>
 #include <vector>
 #include <map>
-#include <unordered_map>
 #include <string>
 #include <memory>
 #include <algorithm>
 #include <fstream>
 #include <time.h>
 #include <xmmintrin.h>
+
+#include "..\external\unordered_dense\include\ankerl\unordered_dense.h"
 
 #include "Utility/MemAddr.h"
 #include "Utility/AddressMgr.h"

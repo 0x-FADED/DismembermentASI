@@ -27,7 +27,7 @@ AddressPool*& AddressMgr::get(const LiteralHash key)
 
 AddressPool*& AddressMgr::getOrCreate(const std::string_view str)
 {
-	auto& result = get("!exists"); //not very ideal way to check 
+	auto& result = get("game");
 
 	if (!result)
 	{

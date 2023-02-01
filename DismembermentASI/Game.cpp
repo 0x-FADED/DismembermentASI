@@ -18,9 +18,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	auto result = pattern.rip(9);
-
-	addresses->insert("getScriptGuidForEntityIndex", result);
+	addresses->insert("getScriptGuidForEntityIndex", pattern.rip(9));
 
 #pragma endregion
 
@@ -34,9 +32,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	result = pattern.rip(1);
-
-	addresses->insert("getBoneIndexForId", result);
+	addresses->insert("getBoneIndexForId", pattern.rip(1));
 
 #pragma endregion
 
@@ -50,9 +46,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	result = pattern.rip(-4);
-
-	addresses->insert("getEntityFragCache", result);
+	addresses->insert("getEntityFragCache", pattern.rip(-4));
 
 #pragma endregion
 
@@ -66,9 +60,33 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	result = pattern.get(-0x15);
+	addresses->insert("getLastSiblingBoneIndex", pattern.get(-0x15));
 
-	addresses->insert("getLastSiblingBoneIndex", result);
+#pragma endregion
+
+#pragma region fragCache__DrawSkeleton
+
+	pattern = BytePattern("0F 18 ? 48 8B CA");
+
+	if (!pattern.bSuccess) {
+
+		LOG("Failed to find find hook pattern (fragCache::DrawSkeleton #1). Cannot continue.");
+		return false;
+	}
+
+	addresses->insert("fragCache::DrawSkeleton", pattern.get(0x170));
+
+	pattern = BytePattern("44 88 44 24 ? 45 8B C4");
+
+	if (!pattern.bSuccess) {
+
+		LOG("Failed to find hook pattern (fragCache::DrawSkeleton #2). Cannot continue.");
+		return false;
+	}
+
+	addresses->insert("fragCache__DrawSkeleton", pattern.get(-0x9B));
+	addresses->insert("fragCache__DrawSkeleton #1", pattern.get(11));
+	addresses->insert("fragCache__DrawSkeleton #2", pattern.get(0x7D));
 
 #pragma endregion
 

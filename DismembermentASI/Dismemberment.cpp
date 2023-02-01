@@ -81,39 +81,21 @@ __int64 fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, void * drawBuff
 
 void initialize() 
 {
-
-	if ( !InititalizeGame() ) {
-
+	if (!InititalizeGame()) 
+	{
 		LOG("Failed to initialize game. Cannot continue.");
 		return;
 	}
 
-	auto pattern = BytePattern("0F 18 ? 48 8B CA");
+	auto& loc = *g_addresses.get("game");
 
-	if (!pattern.bSuccess) {
+	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>(((PBYTE)loc["fragCache::DrawSkeleton"].addr), fragCache__DrawSkeleton_Hook));
 
-		LOG("Failed to find hook pattern (fragCache::DrawSkeleton). Cannot continue.");
-		return;
-	}
+	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton"].addr), fragCache__DrawSkeleton_Hook));
 
-	auto address = pattern.get(0x170);
+	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton #1"].addr), fragCache__DrawSkeleton_Hook));
 
-
-	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>((PBYTE)address, fragCache__DrawSkeleton_Hook));
-
-	pattern = BytePattern("44 88 44 24 ? 45 8B C4");
-
-	if (!pattern.bSuccess) {
-
-		LOG("Failed to find hook pattern (fragCache::DrawSkeleton #2). Cannot continue.");
-		return;
-	}
-
-	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>((PBYTE)pattern.get(-0x9B), fragCache__DrawSkeleton_Hook));
-
-	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>((PBYTE)pattern.get(11), fragCache__DrawSkeleton_Hook));
-
-	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>((PBYTE)pattern.get(0x7D), fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton #2"].addr), fragCache__DrawSkeleton_Hook));
 }
 
 DLL_EXPORT void AddBoneDraw(Ped handle, int start, int end)
