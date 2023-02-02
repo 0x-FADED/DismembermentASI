@@ -10,9 +10,9 @@ typedef CPed* Cped;
 
 using Ped = int32_t;
 
-typedef __int64 (__fastcall *fragCache__DrawSkeleton)(rage::fragCache*, void*, int, CBaseModelInfo*, int, __int64, uint8_t, uint8_t, short, short, float);
+typedef std::uint32_t (*rage__fragCache__DrawSkeleton)(rage::fragCache*, uint32_t*, int, CBaseModelInfo*, bool, __int64, uint8_t, uint8_t, short, short, float);
 
-static std::vector<CallHook<fragCache__DrawSkeleton>*> g_drawFunctions;
+static std::vector<CallHook<rage__fragCache__DrawSkeleton>*> g_drawFunctions;
 
 struct DrawSkeletonInfo
 {
@@ -34,14 +34,14 @@ std::mutex g_mutex;
 /**
  * Main function where the skeleton is drawn by the engine.
  */
-__int64 fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, void * drawBuffer, int isFragment, CBaseModelInfo* modelInfo, int bUnk, __int64 unkBoneIndex, uint8_t unkIdx, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale)
+std::uint32_t rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uint32_t* drawBuffer, int isFragment, CBaseModelInfo* modelInfo, bool bUnk, __int64 unkBoneIndex, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale)
 {
 	
 	std::unique_lock<std::mutex> lock(g_mutex);
 
 	for (auto it = g_pedList.begin(); it != g_pedList.end();)
 	{
-		auto pedAddress = (Cped)GetScriptGuidForEntityIndex(it->first);
+		auto pedAddress = reinterpret_cast<Cped>(GetScriptGuidForEntityIndex(it->first));
 
 		if (!pedAddress)
 		{
@@ -56,12 +56,10 @@ __int64 fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, void * drawBuff
 			{
 				if (it->second.startBoneId != -1)
 				{
-					//startBoneIndex = GetBoneIndexForId(pedAddress, it->second.startBoneId);
-					startBoneIndex = fragCache->m_skeleton->getBoneIndexFormId(it->second.startBoneId);
+					startBoneIndex = fragCache->m_skeleton.m_skeletonData->getBoneIndexFormId(it->second.startBoneId);
 
 					if (it->second.endBoneId != -1)
 						lastSiblingIndex = GetBoneIndexForId(pedAddress, it->second.endBoneId);
-						//lastSiblingIndex = fragCache->m_skeleton->getBoneIndexFormId(it->second.endBoneId);
 
 					else
 						lastSiblingIndex = GetLastSiblingBoneIndex(fragCache, startBoneIndex);
@@ -76,7 +74,7 @@ __int64 fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, void * drawBuff
 		}
 	}
 
-	return g_drawFunctions[0]->fn(fragCache, drawBuffer, isFragment, modelInfo, bUnk, unkBoneIndex, unkIdx, subFragCache, startBoneIndex, lastSiblingIndex, drawScale);
+	return g_drawFunctions[0]->fn(fragCache, drawBuffer, isFragment, modelInfo, bUnk, unkBoneIndex, componentType, subFragCache, startBoneIndex, lastSiblingIndex, drawScale);
 }
 
 void initialize() 
@@ -89,13 +87,13 @@ void initialize()
 
 	auto& loc = *g_addresses.get("game");
 
-	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>(((PBYTE)loc["fragCache::DrawSkeleton"].addr), fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache::DrawSkeleton"].addr), rage__fragCache__DrawSkeleton_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton"].addr), fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton"].addr), rage__fragCache__DrawSkeleton_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton #1"].addr), fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton #1"].addr), rage__fragCache__DrawSkeleton_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton #2"].addr), fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache__DrawSkeleton #2"].addr), rage__fragCache__DrawSkeleton_Hook));
 }
 
 DLL_EXPORT void AddBoneDraw(Ped handle, int start, int end)

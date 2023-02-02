@@ -93,4 +93,15 @@ namespace rage
 		}
 
 	}; static_assert(sizeof(crSkeletonData) == 0x70, "crSkeletonData is of wrong size");// sizeof=0x70
+
+#pragma pack(push, 1)
+	struct crSkeleton
+	{
+		pgPtr<crSkeletonData> m_skeletonData; //0x00 - 0x08
+		pgPtr<Matrix44> m_unkMatrices; //0x08 - 0x10
+		pgPtr<Matrix44> m_positionMatrices; //0x10 - 0x18
+		pgPtr<Matrix44> m_defaultMatrices; //0x18 - 0x20
+		int32_t m_boneCount; //0x20 - 0x24
+	}; static_assert(sizeof(crSkeleton) == 0x24, "crSkeleton is of wrong size"); //pretty sure about this one I ran into it's ctor
+#pragma pack(pop)
 }
