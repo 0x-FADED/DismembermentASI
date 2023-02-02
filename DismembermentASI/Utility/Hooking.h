@@ -14,7 +14,13 @@ public:
 template <typename T>
 void CallHook<T>::remove()
 {
+	DWORD oldProtect;
+	VirtualProtect((BYTE*)address, 5Ui64, PAGE_EXECUTE_READWRITE, &oldProtect);
+
 	*reinterpret_cast<int32_t*>(address + 1) = static_cast<int32_t>((intptr_t)fn - (intptr_t)address - 5);
+
+	VirtualProtect((BYTE*)address, 5Ui64, oldProtect, &oldProtect);
+	FlushInstructionCache(GetCurrentProcess(), (BYTE*)address, 5Ui64);
 }
 
 template <typename T>

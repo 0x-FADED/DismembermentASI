@@ -7,9 +7,9 @@ bool Game::InititalizeGame()
 {
 	auto addresses = g_addresses.getOrCreate("game");
 
+	// SHV uses E8 ? ? ? ? 49 8D 76 ? 8B + 0x1 so we use a entirely different function where we don't need to deal with CEntity bullshit
 #pragma region getScriptEntityIndex
 
-	// SHV uses E8 ? ? ? ? 49 8D 76 ? 8B + 0x1 so we use a entirely different function where we don't need to deal with CEntity bullshit
 	auto pattern = BytePattern("48 8B FA C6 44 24 ? ? E8");
 
 	if (!pattern.bSuccess) {
@@ -64,7 +64,7 @@ bool Game::InititalizeGame()
 
 #pragma endregion
 
-#pragma region fragCache__DrawSkeleton
+#pragma region fragCache__DrawSkeleton // we will redirect the calls all of them
 
 	pattern = BytePattern("0F 18 ? 48 8B CA");
 
@@ -74,7 +74,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	addresses->insert("fragCache::DrawSkeleton", pattern.get(0x170));
+	addresses->insert("fragCache::DrawSkeleton_1", pattern.get(0x170));
 
 	pattern = BytePattern("44 88 44 24 ? 45 8B C4");
 
@@ -84,9 +84,20 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	addresses->insert("fragCache__DrawSkeleton", pattern.get(-0x9B));
-	addresses->insert("fragCache__DrawSkeleton #1", pattern.get(11));
-	addresses->insert("fragCache__DrawSkeleton #2", pattern.get(0x7D));
+	addresses->insert("fragCache::DrawSkeleton_2", pattern.get(-0x9B));
+	addresses->insert("fragCache::DrawSkeleton_3", pattern.get(11));
+	addresses->insert("fragCache::DrawSkeleton_4", pattern.get(0x7D));
+
+	pattern = BytePattern("41 0F 44 C5 48 8B D7");
+
+	if (!pattern.bSuccess) {
+
+		LOG("Failed to find hook pattern (fragCache::DrawSkeleton #3). Cannot continue.");
+		return false;
+	}
+
+	addresses->insert("fragCache::DrawSkeleton_5", pattern.get(0x13));
+
 
 #pragma endregion
 
