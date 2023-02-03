@@ -1,6 +1,6 @@
 #pragma once
 
-template <typename T>
+template <class T>
 class CallHook 
 {
 public:
@@ -11,7 +11,7 @@ public:
 	T fn;
 };
 
-template <typename T>
+template <class T>
 void CallHook<T>::remove()
 {
 	DWORD oldProtect;
@@ -23,7 +23,7 @@ void CallHook<T>::remove()
 	FlushInstructionCache(GetCurrentProcess(), (BYTE*)address, 5Ui64);
 }
 
-template <typename T>
+template <class T>
 CallHook<T>::~CallHook()
 {
 	CallHook<T>::remove();
@@ -32,25 +32,38 @@ CallHook<T>::~CallHook()
 class HookManager
 {
 public:
-	template <typename T>
-	static CallHook<T> *SetCall(PBYTE address, T target)
+	template <class T, int Register>
+	static std::enable_if_t<(Register < 8 && Register >= 0), CallHook<T>> *SetCall(PBYTE address, T target)
 	{
+		if (address != nullptr && *reinterpret_cast<PBYTE>(address) != 0xE8)
+		{
+			LOG("wrong opcode! cannot hook and continue. expected opcode 0xE8");
+			return nullptr;
+		}
+
 		T orig = reinterpret_cast<T>(*reinterpret_cast<int32_t*>(address + 1) + (address + 5));
 
-		auto pFunc = AllocateFunctionStub(GetModuleHandle(nullptr), (void*)target, NULL);
+		ptrdiff_t distance = ((intptr_t)target - (intptr_t)address - 5);
+
+		if (distance >= INT32_MAX || distance <= INT32_MIN) // we only need function stub if distance is not in int32_t range
+		{
+			auto functionStub = AllocateFunctionStub(GetModuleHandle(nullptr), (void*)target, Register);
+
+			distance = static_cast<int32_t>((intptr_t)functionStub - (intptr_t)address - 5);
+		}
 
 		DWORD oldProtect;
 		VirtualProtect((BYTE*)address, 5Ui64, PAGE_EXECUTE_READWRITE, &oldProtect);
 
-		*reinterpret_cast<BYTE*>(address) = 0xE8;
-		*reinterpret_cast<int32_t*>(address + 1) = static_cast<int32_t>((intptr_t)pFunc - (intptr_t)address - 5);
+		*reinterpret_cast<PBYTE>(address) = 0xE8;
+		*reinterpret_cast<int32_t*>(address + 1) = distance;
 
 		VirtualProtect((BYTE*)address, 5Ui64, oldProtect, &oldProtect);
 		FlushInstructionCache(GetCurrentProcess(), (BYTE*)address, 5Ui64);
 
 		return new CallHook<T>(address, orig);
 	}
-
+	
 	static PVOID AllocateFunctionStub(PVOID origin, PVOID function, int type);
 	static LPVOID FindPrevFreeRegion(LPVOID pAddress, LPVOID pMinAddr, DWORD dwAllocationGranularity);
 };

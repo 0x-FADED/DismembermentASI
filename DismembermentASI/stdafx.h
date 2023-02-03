@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable:4244)
+
 #define NOMINMAX
 #include <windows.h>
 #include <inttypes.h>

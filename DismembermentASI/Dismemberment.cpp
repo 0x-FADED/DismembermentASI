@@ -87,15 +87,15 @@ void initialize()
 
 	auto& loc = *g_addresses.get("game"); // using minhook and hooking the originial function would have been better
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache::DrawSkeleton_1"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_1"].addr), rage__fragCache__DrawSkeleton_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache::DrawSkeleton_2"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_2"].addr), rage__fragCache__DrawSkeleton_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache::DrawSkeleton_3"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_3"].addr), rage__fragCache__DrawSkeleton_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache::DrawSkeleton_4"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_4"].addr), rage__fragCache__DrawSkeleton_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton>(((PBYTE)loc["fragCache::DrawSkeleton_5"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_5"].addr), rage__fragCache__DrawSkeleton_Hook));
 }
 
 DLL_EXPORT void AddBoneDraw(Ped handle, int start, int end)
