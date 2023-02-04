@@ -1,17 +1,34 @@
 #pragma once
 
-#define LOG(x,...) g_logfile.Write(x, __VA_ARGS__);
-
-class Logger sealed
+enum class LogLevel
 {
-public:
-	explicit Logger(std::string filename) : path(filename) {}
-	Logger();
-	void Write(const char * format, ...) const;
-	void Remove() const;
-	~Logger();
-private:
-	const std::string path;
+	LOG_NONE,
+	LOG_DEBUG,
+	LOG_INFO,
+	LOG_ERROR
 };
 
-static Logger g_logfile;
+static constexpr const char* _logLevelPrefixes[4] = { "", "DEBUG", "INFO", "ERROR" };
+
+class Logger final
+{
+private:
+	std::filesystem::path m_logFilePath;
+	LogLevel m_logLevel = LogLevel::LOG_NONE;
+	static HMODULE GetActiveModule();
+public:
+	Logger() = default;
+	Logger(const Logger&) = delete;
+	Logger(Logger&&) = delete;
+	Logger(std::string_view logFileName, LogLevel logLevel, bool truncate);
+	void SetFileName(std::string_view newLogFileName);
+	void SetLogLevel(LogLevel newLogLevel);
+
+	void Write(std::string_view text) const;
+	void Write(LogLevel logLevel, std::string_view text) const;
+
+	void Clear() const;
+	static std::string GetModuleName(HMODULE hModule);
+};
+
+static Logger LOG(std::format("{}.log", Logger::GetModuleName(nullptr)), LogLevel::LOG_INFO, true); // set LogLevel to LOG_DEBUG for debugging

@@ -29,9 +29,6 @@
     <ClInclude Include="Utility\MemAddr.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\Utility.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\AddressMgr.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -80,9 +77,6 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="Utility\Logger.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility\Utility.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="Utility\AddressMgr.cpp">

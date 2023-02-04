@@ -1,44 +1,77 @@
 #include "..\stdafx.h"
 
-Logger::Logger() : path(Utility::GetModuleName(NULL) + ".log")
+Logger::Logger(std::string_view logFileName, LogLevel logLevel, bool truncate)
 {
+	m_logFilePath = std::filesystem::current_path().append(logFileName);
+	m_logLevel = logLevel;
+
+	if (truncate)
+	{
+		Clear();
+	}
 }
 
-void Logger::Write(const char * format, ...) const
+HMODULE Logger::GetActiveModule()
 {
-	char inBuf[0x100];
+	HMODULE hModule = NULL;
 
-	va_list va;
+	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+		reinterpret_cast<LPCSTR>(&GetActiveModule),
+		&hModule);
 
-	va_start(va, format);
-
-	vsprintf_s(inBuf, format, va);
-
-	va_end(va);
-
-	auto text = Utility::FormatString("[%s] [LOG] %s\n",
-		Utility::GetShortTimeString().c_str(), inBuf);
-
-	std::ofstream ofs(path, std::ios::app);
-
-	ofs << text;
-
-	ofs.close();
-
-#ifdef _DEBUG
-	OutputDebugStringA(text.c_str());
-
-#endif
+	return hModule;
 }
 
-void Logger::Remove() const
+std::string Logger::GetModuleName(HMODULE hModule)
 {
-	if (!Utility::FileExists(path)) return;
+	TCHAR inBuf[MAX_PATH];
 
-	remove(path.c_str());
+	if (!hModule)
+		hModule = GetActiveModule();
+
+	GetModuleFileName(hModule, inBuf, sizeof inBuf);
+
+	auto str = std::string(inBuf);
+
+	auto seperator = str.find_last_of("\\");
+
+	if (seperator != std::string::npos)
+		seperator += 1;
+
+	return str.substr(seperator, str.find_last_of(".") - seperator);
 }
 
-Logger::~Logger()
+void Logger::SetFileName(std::string_view newLogFileName)
 {
-	Remove();
+	m_logFilePath = std::filesystem::current_path().append(newLogFileName);
+}
+
+void Logger::SetLogLevel(LogLevel newLogLevel)
+{
+	m_logLevel = newLogLevel;
+}
+
+void Logger::Write(std::string_view text) const
+{
+	Write(m_logLevel, text);
+}
+
+void Logger::Write(LogLevel logLevel, std::string_view text) const
+{
+	if (m_logFilePath.empty() || m_logLevel == LogLevel::LOG_NONE || m_logLevel > logLevel || logLevel < LogLevel::LOG_NONE || logLevel > LogLevel::LOG_ERROR)
+	{
+		return;
+	}
+
+	std::ofstream logFile(m_logFilePath, std::ofstream::out | std::ofstream::app);
+	if (logFile)
+	{
+		auto time = std::chrono::zoned_time{ std::chrono::current_zone(), std::chrono::system_clock::now()};
+		logFile << std::format("[{:%Y-%m-%d %H:%M:%S}] [{}] {}", time, _logLevelPrefixes[static_cast<int>(logLevel)], text) << "\n";
+	}
+}
+
+void Logger::Clear() const
+{
+	std::ofstream logFile(m_logFilePath, std::ofstream::out | std::ofstream::trunc);
 }

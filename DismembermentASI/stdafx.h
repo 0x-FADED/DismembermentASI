@@ -11,15 +11,16 @@
 #include <memory>
 #include <algorithm>
 #include <fstream>
-#include <time.h>
+#include <chrono>
 #include <xmmintrin.h>
+#include <filesystem>
+#include <format>
 
 #include "..\external\unordered_dense\include\ankerl\unordered_dense.h"
 
 #include "Utility/MemAddr.h"
 #include "Utility/AddressMgr.h"
 
-#include "Utility/Utility.h"
 #include "Utility/Logger.h"
 #include "Utility/Hooking.h"
 #include "Utility/pattern.h"

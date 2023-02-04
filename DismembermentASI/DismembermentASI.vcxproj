@@ -205,7 +205,6 @@
     <ClInclude Include="Utility\Logger.h" />
     <ClInclude Include="Utility\MemAddr.h" />
     <ClInclude Include="Utility\pattern.h" />
-    <ClInclude Include="Utility\Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dismemberment.cpp" />
@@ -233,7 +232,6 @@
     <ClCompile Include="Utility\AddressMgr.cpp" />
     <ClCompile Include="Utility\Hooking.cpp" />
     <ClCompile Include="Utility\Logger.cpp" />
-    <ClCompile Include="Utility\Utility.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
