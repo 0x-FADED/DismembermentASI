@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Game.h"
-#include <mutex>
 
 using namespace Game;
 
@@ -85,7 +84,7 @@ void initialize()
 		return;
 	}
 
-	LOG.Write(LogLevel::LOG_INFO, "All patterns are valid proceeding to hook rage::fragCache::DrawSkeleton functions.");
+	LOG.Write(LogLevel::LOG_INFO, "All patterns are valid proceeding to hook rage::fragCache::DrawSkeleton calls.");
 
 	auto& loc = *g_addresses.get("game"); // using minhook and hooking the originial function would have been better
 

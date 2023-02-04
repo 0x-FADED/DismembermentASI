@@ -7,9 +7,9 @@ bool Game::InititalizeGame()
 {
 	auto addresses = g_addresses.getOrCreate("game");
 
-//	auto hmodoule = (PBYTE)GetModuleHandle(nullptr);
+	//	auto hmodoule = (PBYTE)GetModuleHandle(nullptr);
 
-	// SHV uses E8 ? ? ? ? 49 8D 76 ? 8B + 0x1 so we use a entirely different function where we don't need to deal with CEntity bullshit
+		// SHV uses E8 ? ? ? ? 49 8D 76 ? 8B + 0x1 so we use a entirely different function where we don't need to deal with CEntity bullshit
 #pragma region getScriptEntityIndex
 
 	auto pattern = BytePattern("48 8B FA C6 44 24 ? ? E8");
@@ -22,7 +22,7 @@ bool Game::InititalizeGame()
 
 	auto result = pattern.rip(9);
 
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getScriptGuidForEntityIndex address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getScriptGuidForEntityIndex address at {:#X}", result - hmodoule));
 
 	addresses->insert("getScriptGuidForEntityIndex", result);
 
@@ -40,7 +40,7 @@ bool Game::InititalizeGame()
 
 	result = pattern.rip(1);
 
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getBoneIndexForId address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getBoneIndexForId address at {:#X}", result - hmodoule));
 
 	addresses->insert("getBoneIndexForId", result);
 
@@ -50,7 +50,7 @@ bool Game::InititalizeGame()
 
 	pattern = BytePattern("0F BA 77 ? ? 44 8B D3");
 
-	if ( !pattern.bSuccess ) {
+	if (!pattern.bSuccess) {
 
 		LOG.Write(LogLevel::LOG_ERROR, "Failed to find getEntityFragCache pattern.");
 		return false;
@@ -58,7 +58,7 @@ bool Game::InititalizeGame()
 
 	result = pattern.rip(-4);
 
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getEntityFragCache address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getEntityFragCache address at {:#X}", result - hmodoule));
 
 	addresses->insert("getEntityFragCache", result);
 
@@ -74,9 +74,9 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	result = pattern.rip(-0x15);
+	result = pattern.get(-0x15);
 
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getLastSiblingBoneIndex address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getLastSiblingBoneIndex address at {:#X}", result - hmodoule));
 
 	addresses->insert("getLastSiblingBoneIndex", result);
 
@@ -93,7 +93,7 @@ bool Game::InititalizeGame()
 	}
 
 
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #1 address at {:#X}", pattern.get(0x170) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #1 address at {:#X}", pattern.get(0x170) - hmodoule));
 
 	addresses->insert("fragCache::DrawSkeleton_1", pattern.get(0x170));
 
@@ -105,9 +105,9 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(-0x9B) - hmodoule));
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(11) - hmodoule));
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(0x7D) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(-0x9B) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(11) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(0x7D) - hmodoule));
 
 	addresses->insert("fragCache::DrawSkeleton_2", pattern.get(-0x9B));
 	addresses->insert("fragCache::DrawSkeleton_3", pattern.get(11));
@@ -121,7 +121,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #3 address at {:#X}",pattern.get(0x13) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #3 address at {:#X}",pattern.get(0x13) - hmodoule));
 
 	addresses->insert("fragCache::DrawSkeleton_5", pattern.get(0x13));
 

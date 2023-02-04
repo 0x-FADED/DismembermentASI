@@ -50,9 +50,9 @@ public:
 
 			auto functionStub = AllocateFunctionStub(GetModuleHandle(nullptr), (void*)target, Register);
 
-			LOG.Write(LogLevel::LOG_DEBUG, std::format("allocated stub memory at {:#X}", (intptr_t)functionStub));
+		//	LOG.Write(LogLevel::LOG_DEBUG, std::format("allocated stub memory at {:#X}", (intptr_t)functionStub));
 
-			distance = static_cast<int32_t>((intptr_t)functionStub - (intptr_t)address - 5);
+			 distance = static_cast<int32_t>((intptr_t)functionStub - (intptr_t)address - 5);
 		}
 
 		DWORD oldProtect;
@@ -68,5 +68,6 @@ public:
 	}
 	
 	static PVOID AllocateFunctionStub(PVOID origin, PVOID function, int type);
-	static LPVOID FindPrevFreeRegion(LPVOID pAddress, LPVOID pMinAddr, DWORD dwAllocationGranularity);
+	static inline ULONG_PTR AlignUp(ULONG_PTR stack, SIZE_T align);
+	static inline ULONG_PTR AlignDown(ULONG_PTR stack, SIZE_T align);
 };

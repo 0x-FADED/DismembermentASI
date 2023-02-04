@@ -1,13 +1,13 @@
 #include "..\stdafx.h"
 
-// Size of each memory block. (= page size of VirtualAlloc)
-constexpr uint64_t MEMORY_BLOCK_SIZE = 0x1000;
-
-// Max range for seeking a memory block. (= 1024MB)
-constexpr uint64_t MAX_MEMORY_RANGE = 0x40000000;
-
 PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, int type)
 {
+	// Size of each memory block. (= page size of VirtualAlloc)
+	constexpr uint64_t MEMORY_BLOCK_SIZE = 0x1000;
+
+	// Max range for seeking a memory block. (= 1024MB)
+	constexpr uint64_t MAX_MEMORY_RANGE = 0x40000000;
+
 	static void* g_currentStub = nullptr;
 	static void* g_stubMemoryStart = nullptr;
 
@@ -20,30 +20,31 @@ PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, int type)
 		MEM_EXTENDED_PARAMETER param = { 0 };
 
 		ULONG_PTR minAddr = (ULONG_PTR)si.lpMinimumApplicationAddress;
+		ULONG_PTR maxAddr = (ULONG_PTR)si.lpMaximumApplicationAddress;
 
 		if ((ULONG_PTR)origin > MAX_MEMORY_RANGE && minAddr < (ULONG_PTR)origin - MAX_MEMORY_RANGE)
 			minAddr = (ULONG_PTR)origin - MAX_MEMORY_RANGE;
 
+		if (maxAddr > (ULONG_PTR)origin + MAX_MEMORY_RANGE)
+			maxAddr = (ULONG_PTR)origin + MAX_MEMORY_RANGE;
+
+		maxAddr -= MEMORY_BLOCK_SIZE - 1;
+
+		auto start = AlignUp(minAddr, si.dwAllocationGranularity);
+		auto end = AlignDown(maxAddr, si.dwAllocationGranularity);
+
+		addressReqs.Alignment = NULL; // any alignment
+		addressReqs.LowestStartingAddress = (PVOID)start < si.lpMinimumApplicationAddress ? si.lpMinimumApplicationAddress : (PVOID)start;
+		addressReqs.HighestEndingAddress = (PVOID)(end - 1) > si.lpMaximumApplicationAddress ? si.lpMaximumApplicationAddress : (PVOID)(end - 1);
+
+		param.Type = MemExtendedParameterAddressRequirements;
+		param.Pointer = &addressReqs;
+
 		auto pVirtualAlloc2 = (decltype(&::VirtualAlloc2))GetProcAddress(GetModuleHandleA("kernelbase.dll"), "VirtualAlloc2");
-		LPVOID pAlloc = origin;
-
-		while ((ULONG_PTR)pAlloc >= minAddr)
-		{
-			pAlloc = FindPrevFreeRegion(pAlloc, (LPVOID)minAddr, si.dwAllocationGranularity);
-			if (pAlloc == NULL)
-				break;
-
-			addressReqs.Alignment = NULL; // 0 = any alignment
-			addressReqs.LowestStartingAddress = pAlloc;
-
-			param.Type = MemExtendedParameterAddressRequirements;
-			param.Pointer = &addressReqs;
 			
-			g_currentStub = pVirtualAlloc2(GetCurrentProcess(), nullptr, (SIZE_T)MEMORY_BLOCK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE, &param, 1);
-			if (g_currentStub != NULL)
-				g_stubMemoryStart = g_currentStub;
-			break;
-		}
+		g_currentStub = pVirtualAlloc2(GetCurrentProcess(), nullptr, (SIZE_T)MEMORY_BLOCK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE, &param, 1);
+		if (g_currentStub != NULL)
+			g_stubMemoryStart = g_currentStub;
 	}
 
 	if (!g_currentStub)
@@ -69,30 +70,26 @@ PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, int type)
 	return code;
 }
 
-LPVOID HookManager::FindPrevFreeRegion(LPVOID pAddress, LPVOID pMinAddr, DWORD dwAllocationGranularity) 
+inline ULONG_PTR HookManager::AlignUp(ULONG_PTR stack, SIZE_T align)
 {
-	ULONG_PTR tryAddr = (ULONG_PTR)pAddress;
+	assert(align > 0 && (align & (align - 1)) == 0); // Power of 2 
+	assert(stack != 0);
 
-	// Round down to the next allocation granularity.
-	tryAddr -= tryAddr % dwAllocationGranularity;
+	auto addr = stack;
+	if (addr % align != 0)
+		addr += align - (addr % align);
 
-	// Start from the previous allocation granularity multiply.
-	tryAddr -= dwAllocationGranularity;
+	assert(addr >= stack);
+	return addr;
+}
 
-	while (tryAddr >= (ULONG_PTR)pMinAddr) 
-	{
-		MEMORY_BASIC_INFORMATION mbi;
-		if (VirtualQuery((LPVOID)tryAddr, &mbi, sizeof(MEMORY_BASIC_INFORMATION)) == NULL)
-			break;
+inline ULONG_PTR HookManager::AlignDown(ULONG_PTR stack, SIZE_T align)
+{
+	assert(align > 0 && (align & (align - 1)) == 0); // Power of 2 
+	assert(stack != 0);
 
-		if (mbi.State == MEM_FREE)
-			return (LPVOID)tryAddr;
-
-		if ((ULONG_PTR)mbi.AllocationBase < dwAllocationGranularity)
-			break;
-
-		tryAddr = (ULONG_PTR)mbi.AllocationBase - dwAllocationGranularity;
-	}
-
-	return NULL;
+	auto addr = stack;
+	addr &= -align;
+	assert(addr <= stack);
+	return addr;
 }

@@ -1,20 +1,19 @@
 #pragma once
 
 #pragma warning(disable:4244)
+#pragma warning(disable:4146)
+#pragma warning(disable:6387)
 
 #define NOMINMAX
 #include <windows.h>
-#include <inttypes.h>
 #include <vector>
 #include <map>
 #include <string>
-#include <memory>
-#include <algorithm>
 #include <fstream>
 #include <chrono>
 #include <xmmintrin.h>
 #include <filesystem>
-#include <format>
+#include <cassert>
 
 #include "..\external\unordered_dense\include\ankerl\unordered_dense.h"
 
