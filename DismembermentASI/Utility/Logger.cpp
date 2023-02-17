@@ -1,8 +1,8 @@
 #include "..\stdafx.h"
 
-Logger::Logger(std::string_view logFileName, LogLevel logLevel, bool truncate)
+Logger::Logger(LogLevel logLevel, bool truncate)
 {
-	m_logFilePath = std::filesystem::current_path().append(logFileName);
+	m_logFilePath = std::filesystem::current_path().append(std::format("{}.log", GetModuleName().data()));
 	m_logLevel = logLevel;
 
 	if (truncate)
@@ -13,7 +13,7 @@ Logger::Logger(std::string_view logFileName, LogLevel logLevel, bool truncate)
 
 HMODULE Logger::GetActiveModule()
 {
-	HMODULE hModule = NULL;
+	HMODULE hModule = nullptr;
 
 	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
 		reinterpret_cast<LPCSTR>(&GetActiveModule),
@@ -22,14 +22,11 @@ HMODULE Logger::GetActiveModule()
 	return hModule;
 }
 
-std::string Logger::GetModuleName(HMODULE hModule)
+std::string Logger::GetModuleName()
 {
 	TCHAR inBuf[MAX_PATH];
 
-	if (!hModule)
-		hModule = GetActiveModule();
-
-	GetModuleFileName(hModule, inBuf, sizeof inBuf);
+	GetModuleFileName(GetActiveModule(), inBuf, sizeof inBuf);
 
 	auto str = std::string(inBuf);
 
@@ -39,16 +36,6 @@ std::string Logger::GetModuleName(HMODULE hModule)
 		seperator += 1;
 
 	return str.substr(seperator, str.find_last_of(".") - seperator);
-}
-
-void Logger::SetFileName(std::string_view newLogFileName)
-{
-	m_logFilePath = std::filesystem::current_path().append(newLogFileName);
-}
-
-void Logger::SetLogLevel(LogLevel newLogLevel)
-{
-	m_logLevel = newLogLevel;
 }
 
 void Logger::Write(std::string_view text) const

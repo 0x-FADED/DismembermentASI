@@ -66,7 +66,7 @@ public:
 
 		return new CallHook<T>(address, orig);
 	}
-	
+private:
 	static PVOID AllocateFunctionStub(PVOID origin, PVOID function, int type);
 	static inline ULONG_PTR AlignUp(ULONG_PTR stack, SIZE_T align);
 	static inline ULONG_PTR AlignDown(ULONG_PTR stack, SIZE_T align);

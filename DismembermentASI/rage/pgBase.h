@@ -14,6 +14,18 @@ namespace rage
 		uint32_t blockType : 4;
 	};
 
+	struct BlockMap
+	{
+		uint16_t virtualLen;
+		uint16_t physicalLen;
+
+		struct BlockInfo
+		{
+			uint32_t offset;
+			void* data;
+			uint32_t size;
+		} blocks[128];
+	};
 
 	template<class T, bool Physical = false>
 	class pgPtr
@@ -29,7 +41,12 @@ namespace rage
 		{
 			pointer = nullptr;
 		}
-
+		
+		~pgPtr()
+		{
+			return;
+		}
+		
 		T* operator->() const
 		{
 			return pointer;
@@ -40,7 +57,7 @@ namespace rage
 			return pointer;
 		}
 
-		T operator[](int idx) const
+		T operator[](const int idx) const
 		{
 			return pointer[idx];
 		}
@@ -48,6 +65,12 @@ namespace rage
 		pgPtr operator=(T* other)
 		{
 			pointer = other;
+			return *this;
+		}
+
+		pgPtr& operator=(const pgPtr& arg)
+		{
+			pointer = arg.pointer;
 			return *this;
 		}
 
@@ -65,19 +88,14 @@ namespace rage
 		{
 			return &pointer[index];
 		}
-	};
 
-	struct BlockMap
-	{
-		uint16_t virtualLen;
-		uint16_t physicalLen;
-
-		struct BlockInfo
+		void Resolve(BlockMap* blockMap = nullptr)
 		{
-			uint32_t offset;
-			void* data;
-			uint32_t size;
-		} blocks[128];
+			if (on_disk.blockType == nullptr && on_disk.pointer == nullptr)
+			{
+				return;
+			}
+		}
 	};
 
 	class pgBase : public datBase //0x0-0x10
@@ -109,7 +127,7 @@ namespace rage
 			HashEntry* m_next;
 		}; //sizeof(HashEntry) == 0x10
 	public:
-		T** m_data;
+		pgPtr<T*> m_data;
 		uint16_t m_bucketCount;
 		uint16_t m_entryCount;
 		char pad[3];
@@ -123,7 +141,7 @@ namespace rage
 
 		inline T* find(const uint32_t& hash) const
 		{
-			for (auto i = reinterpret_cast<HashEntry*>(*(m_data + (hash % m_bucketCount))); i != nullptr; i = i->m_next)
+			for (auto i = reinterpret_cast<HashEntry*>(m_data[hash % m_bucketCount]); i != nullptr; i = i->m_next)
 			{
 				if (hash == i->m_hash)
 				{
