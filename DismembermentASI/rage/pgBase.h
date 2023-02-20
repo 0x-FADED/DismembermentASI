@@ -96,7 +96,7 @@ namespace rage
 				return;
 			}
 		}
-	};
+	}; //sizeof(pgPtr<void>) == 0x08
 
 	class pgBase : public datBase //0x0-0x10
 	{
@@ -116,6 +116,26 @@ namespace rage
 	}; static_assert(sizeof(pgBase) == 0x10, "pgBase is of wrong size");
 
 #pragma pack(push, 1)
+	template<typename T>
+	class pgObjectArray
+	{
+	public:
+		pgPtr<T> m_objects;
+		uint16_t m_count;
+		uint16_t m_size;
+
+		inline uint16_t GetCount() const
+		{
+			return m_count;
+		}
+		pgObjectArray()
+		{
+			m_objects = (pgPtr<T>*)0;
+			m_count = 0;
+			m_size = 0;
+		}
+	}; //sizeof(pgObjectArray<void>) == 0x0C
+
 	template<class T>
 	class pgHashMap
 	{
@@ -125,11 +145,9 @@ namespace rage
 			uint32_t m_hash;
 			T m_idx;
 			HashEntry* m_next;
-		}; //sizeof(HashEntry) == 0x10
+		}; //sizeof(HashEntry<int32_t>) == 0x10
 	public:
-		pgPtr<T*> m_data;
-		uint16_t m_bucketCount;
-		uint16_t m_entryCount;
+		pgObjectArray<HashEntry*> m_data;
 		char pad[3];
 		bool m_resizable;
 
@@ -141,7 +159,7 @@ namespace rage
 
 		inline T* find(const uint32_t& hash) const
 		{
-			for (auto i = reinterpret_cast<HashEntry*>(m_data[hash % m_bucketCount]); i != nullptr; i = i->m_next)
+			for (auto i = m_data.m_objects[hash % m_data.GetCount()]; i != nullptr; i = i->m_next)
 			{
 				if (hash == i->m_hash)
 				{
@@ -150,7 +168,7 @@ namespace rage
 			}
 			return nullptr;
 		}
-	}; //sizeof(pgHashMap) == 0x10
+	}; static_assert(sizeof(pgHashMap<void>) == 0x10, "pgHashMap is of wrong size");
 #pragma pack(pop)
 	
 }

@@ -5,7 +5,7 @@ using namespace Game;
 
 #define DLL_EXPORT extern "C" __declspec( dllexport )
 
-typedef CPed* Cped;
+typedef CPed* Peds;
 
 using Ped = int32_t;
 
@@ -40,7 +40,7 @@ std::uint32_t rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uin
 
 	for (auto it = g_pedList.begin(); it != g_pedList.end();)
 	{
-		auto pedAddress = reinterpret_cast<Cped>(GetScriptGuidForEntityIndex(it->first));
+		auto pedAddress = reinterpret_cast<Peds>(GetScriptGuidForEntityIndex(it->first));
 
 		if (!pedAddress)
 		{

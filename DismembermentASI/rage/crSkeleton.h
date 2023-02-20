@@ -73,7 +73,7 @@ namespace rage
 
 		inline int32_t getBoneIndexFormId(const int32_t& boneId) const 
 		{
-			if (m_boneTag.m_entryCount == 0)
+			if (m_boneTag.m_data.m_size == 0)
 			{
 				if (boneId < m_numBones)
 					return boneId;
@@ -81,7 +81,7 @@ namespace rage
 				return -1;
 			}
 
-			if (m_boneTag.m_bucketCount == 0)
+			if (m_boneTag.m_data.m_count == 0)
 				return -1;
  
 			auto boneIndex = m_boneTag.find(boneId);
