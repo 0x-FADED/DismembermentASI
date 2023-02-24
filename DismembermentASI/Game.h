@@ -2,14 +2,15 @@
 
 typedef rage::CEntity* CEntity;
 
-namespace Game {
+namespace Game 
+{
 
 	bool InititalizeGame();
 
-	inline BYTE* GetScriptGuidForEntityIndex(int handle)
+	inline CEntity rage_fwScriptGuid_GetBaseFromGuid(int32_t handle)
 	{
-		return ((BYTE*(__fastcall*)(int))
-			(*g_addresses.get("game"))["getScriptGuidForEntityIndex"].addr)(handle);
+		return ((CEntity(__fastcall*)(int32_t))
+			(*g_addresses.get("game"))["rage::fwScriptGuid::GetBaseFromGuid"].addr)(handle);
 	}
 
 	inline int GetBoneIndexForId(CEntity entity, uint16_t boneId)

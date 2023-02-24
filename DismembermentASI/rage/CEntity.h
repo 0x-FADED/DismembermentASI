@@ -43,7 +43,7 @@ namespace rage
     class fwExtensibleBase : public fwRefAwareBase
     {
     public:
-        virtual bool is_of_type(std::uint32_t hash) = 0;
+        virtual bool is_of_type(uint32_t hash) = 0;
         virtual uint32_t const &get_type() = 0;
 
         void* m_extensionContainer; // 0x0010
@@ -56,13 +56,13 @@ namespace rage
     class fwDrawData
     {
     public:
-        std::uint64_t m_unk0;
-        std::uint64_t m_unk8;
+        uint64_t m_unk0;
+        uint64_t m_unk8;
         char pad10[8];
-        std::uint32_t m_unk18;
-        std::uint32_t m_unk1C;
-        std::uint64_t m_unk20;
-        std::uint32_t m_unk28;
+        uint32_t m_unk18;
+        uint32_t m_unk1C;
+        uint64_t m_unk20;
+        uint32_t m_unk28;
     };
     static_assert(sizeof(fwDrawData) == 0x2C);
 #pragma pack(pop)
@@ -79,25 +79,30 @@ namespace rage
     class fwEntity : public fwExtensibleBase
     {
     public:
-        DEFINE_RAGE_RTTI(fwEntity);
-
+        virtual void* _0x00() = 0;
+        virtual void* _0x08() = 0;
+        virtual uint32_t _0x10() = 0;
+        virtual fwEntity* _0x18(void*) = 0;
+        virtual bool _0x20(void*) = 0;
+        virtual bool _0x28(void**) = 0;
+        virtual ~fwEntity() = 0;
         virtual void* _0x38(void*, void*) = 0;
         virtual void AddExtension(void* extension) = 0; // 0x40
         virtual void _0x48() = 0; // not implemented
         virtual void _0x50() = 0; // only implemented by CEntityBatch
         virtual void _0x58() = 0;
-        virtual void SetModelInfo(std::uint16_t* modelIndex) = 0; // 0x60
+        virtual void SetModelInfo(uint16_t* modelIndex) = 0; // 0x60
         virtual void _0x68(int, fvector4*) = 0;
         virtual void* _0x70(int) = 0;
         virtual CNavigation* GetNavigation() = 0; // 0x78
         virtual CMoveObjectPooledObject* CreateMoveObject() = 0; // 0x80
-        virtual std::uint32_t* GetType() = 0; // 0x88
+        virtual uint32_t* GetType() = 0; // 0x88
         virtual void _0x90() = 0;
         virtual float _0x98() = 0;
         virtual bool TryRequestInverseKinematics(crmtRequestPose* pose, crmtRequestIk* ik) = 0; // 0xA0 implemented only by CPed
         virtual bool TryRequestFacialAnims(void*) = 0; // 0xA8 implemented only by CPed
         virtual void* _0xB0() = 0;
-        virtual std::uint8_t _0xB8() = 0; // implemented only by CPed
+        virtual uint8_t _0xB8() = 0; // implemented only by CPed
         virtual crFrameFilter* GetFrameFilter() = 0; // 0xC0
         virtual fwAudEntity* GetEntityAudio() = 0; // 0xC8
         virtual void _0xD0() = 0;
@@ -155,7 +160,6 @@ namespace rage
     class CEntity : public fwEntity
     {
     public:
-    public:
         virtual void* _0x120() = 0; // implemented only by CPed
         virtual void UpdatePositionImpl() = 0; // 0x128
         virtual void _0x130() = 0;
@@ -185,18 +189,12 @@ namespace rage
         virtual bool _0x1F0() = 0;
         virtual void Warp(rage::fvector3* pos, float heading, bool) = 0; // 0x1F8
 
-
         uint8_t gapB9; //0x00B9
         char gapBA[6]; //0x00BA
         uint32_t m_flags3; //0x00C0
         uint32_t m_flags4; //0x00C4
         uint32_t dwordC8;
         uint32_t dwordCC;
-
-        CEntity()
-        {
-            memset(this, 0x0, sizeof(CEntity));
-        }
     };
     static_assert(sizeof(CEntity) == 0xD0, "CEntity is of Wrong size!");
 

@@ -103,11 +103,6 @@ public:
     eModelType m_modelType; //0x009D
     char pad_009E[6]; //0x009E
     uint64_t unk_00A8; //0x00A8
-
-    CBaseModelInfo()
-    {
-        memset(this, 0x0, sizeof(CBaseModelInfo));
-    }
 }; //Size: 0x00B0
 static_assert(sizeof(CBaseModelInfo) == 0xB0, "CBaseModelInfo is of wrong size!");
 #pragma pack(pop)

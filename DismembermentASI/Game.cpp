@@ -9,22 +9,21 @@ bool Game::InititalizeGame()
 
 	//	auto hmodoule = (PBYTE)GetModuleHandle(nullptr);
 
-		// SHV uses E8 ? ? ? ? 49 8D 76 ? 8B + 0x1 so we use a entirely different function where we don't need to deal with CEntity bullshit
 #pragma region getScriptEntityIndex
 
 	auto pattern = BytePattern("48 8B FA C6 44 24 ? ? E8");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find getScriptGuidForEntityIndex pattern.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find rage::fwScriptGuid::GetBaseFromGuid pattern.");
 		return false;
 	}
 
 	auto result = pattern.rip(9);
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getScriptGuidForEntityIndex address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found rage::fwScriptGuid::GetBaseFromGuid address at {:#X}", result - hmodoule));
 
-	addresses->insert("getScriptGuidForEntityIndex", result);
+	addresses->insert("rage::fwScriptGuid::GetBaseFromGuid", result);
 
 #pragma endregion
 
