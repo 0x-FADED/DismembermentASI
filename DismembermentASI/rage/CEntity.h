@@ -31,7 +31,7 @@ namespace rage
     template <class T>
     class fwRefAwareBaseImpl : public T
     {
-    private:
+    public:
         void *m_ref; // 0x08
     };
 

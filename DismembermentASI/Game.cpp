@@ -5,11 +5,11 @@ AddressMgr g_addresses;
 
 bool Game::InititalizeGame()
 {
-	auto addresses = g_addresses.getOrCreate("game");
+	auto addresses = g_addresses.getOrCreate("GTA5");
 
 	//	auto hmodoule = (PBYTE)GetModuleHandle(nullptr);
 
-#pragma region getScriptEntityIndex
+#pragma region rage::fwScriptGuid::GetBaseFromGuid
 
 	auto pattern = BytePattern("48 8B FA C6 44 24 ? ? E8");
 
@@ -27,67 +27,67 @@ bool Game::InititalizeGame()
 
 #pragma endregion
 
-#pragma region getBoneIndexForId
+#pragma region CEntity::GetIndexForBoneId
 
 	pattern = BytePattern("E8 ? ? ? ? 41 3B C5 74 ? 48");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find getBoneIndexForId pattern.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find CEntity::GetIndexForBoneId pattern.");
 		return false;
 	}
 
 	result = pattern.rip(1);
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getBoneIndexForId address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CEntity::GetIndexForBoneId address at {:#X}", result - hmodoule));
 
-	addresses->insert("getBoneIndexForId", result);
+	addresses->insert("CEntity::GetIndexForBoneId", result);
 
 #pragma endregion
 
-#pragma region getEntityFragCache
+#pragma region rage::fragCache::GetEntityFragCache
 
 	pattern = BytePattern("0F BA 77 ? ? 44 8B D3");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find getEntityFragCache pattern.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find rage::fragCache::GetEntityFragCache pattern.");
 		return false;
 	}
 
 	result = pattern.rip(-4);
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getEntityFragCache address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found rage::fragCache::GetEntityFragCache address at {:#X}", result - hmodoule));
 
-	addresses->insert("getEntityFragCache", result);
+	addresses->insert("rage::fragCache::GetEntityFragCache", result);
 
 #pragma endregion
 
-#pragma region getLastSiblingBoneIndex
+#pragma region rage::fragCache::GetLastSiblingBoneIndex
 
 	pattern = BytePattern("33 D2 45 0F BF 48 ?");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find getLastSiblingBoneIndex pattern.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find rage::fragCache::GetLastSiblingBoneIndex pattern.");
 		return false;
 	}
 
 	result = pattern.get(-0x15);
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found getLastSiblingBoneIndex address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found rage::fragCache::GetLastSiblingBoneIndex address at {:#X}", result - hmodoule));
 
-	addresses->insert("getLastSiblingBoneIndex", result);
+	addresses->insert("rage::fragCache::GetLastSiblingBoneIndex", result);
 
 #pragma endregion
 
-#pragma region fragCache__DrawSkeleton // we will redirect the calls all of them
+#pragma region rage::fragCache::DrawSkeleton // we will redirect the calls all of them
 
 	pattern = BytePattern("0F 18 ? 48 8B CA");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find find hook pattern (fragCache::DrawSkeleton #1). Cannot continue.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find find hook pattern (rage::fragCache::DrawSkeleton #1). Cannot continue.");
 		return false;
 	}
 
@@ -100,7 +100,7 @@ bool Game::InititalizeGame()
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find hook pattern (fragCache::DrawSkeleton #2). Cannot continue.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find hook pattern (rage::fragCache::DrawSkeleton #2). Cannot continue.");
 		return false;
 	}
 
@@ -116,7 +116,7 @@ bool Game::InititalizeGame()
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find hook pattern (fragCache::DrawSkeleton #3). Cannot continue.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find hook pattern (rage::fragCache::DrawSkeleton #3). Cannot continue.");
 		return false;
 	}
 

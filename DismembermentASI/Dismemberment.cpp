@@ -47,19 +47,19 @@ std::uint32_t rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uin
 
 		else
 		{
-			auto pedCache = GetEntityFragCache(pedAddress);
+			auto pedCache = rage__fragCache__GetEntityFragCache(pedAddress);
 
 			if (pedCache && pedCache == fragCache)
 			{
 				if (it->second.startBoneId != -1)
 				{
-					startBoneIndex = fragCache->m_skeleton.m_skeletonData->getBoneIndexFormId(it->second.startBoneId);
+					startBoneIndex = fragCache->m_skeleton.m_skeletonData->ConvertBoneIdToIndex(it->second.startBoneId);
 
 					if (it->second.endBoneId != -1)
-						lastSiblingIndex = GetBoneIndexForId(pedAddress, it->second.endBoneId);
+						lastSiblingIndex = CEntity__GetIndexForBoneId(pedAddress, it->second.endBoneId);
 
 					else
-						lastSiblingIndex = GetLastSiblingBoneIndex(fragCache, startBoneIndex);
+						lastSiblingIndex = rage__fragCache__GetLastSiblingBoneIndex(fragCache, startBoneIndex);
 				}
 
 				drawScale = 0.0f;
@@ -84,7 +84,7 @@ void initialize()
 
 	LOG.Write(LogLevel::LOG_INFO, "All patterns are valid proceeding to hook rage::fragCache::DrawSkeleton calls.");
 
-	auto& loc = *g_addresses.get("game"); // using minhook and hooking the originial function would have been better
+	auto& loc = *g_addresses.get("GTA5"); // using minhook and hooking the originial function would have been better
 
 	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_1"].addr), rage__fragCache__DrawSkeleton_Hook));
 

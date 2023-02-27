@@ -27,7 +27,7 @@ AddressPool*& AddressMgr::get(const LiteralHash key)
 
 AddressPool*& AddressMgr::getOrCreate(const std::string_view str)
 {
-	auto& result = get("game");
+	auto& result = get("GTA5");
 
 	if (!result)
 	{
