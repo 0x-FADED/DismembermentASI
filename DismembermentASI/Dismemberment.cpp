@@ -74,7 +74,7 @@ std::uint32_t rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uin
 	return g_drawFunctions[0]->fn(fragCache, drawBuffer, isFragment, modelInfo, bUnk, unkBoneIndex, componentType, subFragCache, startBoneIndex, lastSiblingIndex, drawScale);
 }
 
-void initialize() 
+void initialize()
 {
 	if (!InititalizeGame()) 
 	{

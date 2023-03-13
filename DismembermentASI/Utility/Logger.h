@@ -8,11 +8,10 @@ enum class LogLevel
 	LOG_ERROR
 };
 
-static constexpr const char* _logLevelPrefixes[4] = { "", "DEBUG", "INFO", "ERROR" };
-
 class Logger final
 {
 private:
+	static constexpr const char* _logLevelPrefixes[4] = { "", "DEBUG", "INFO", "ERROR" };
 	static HMODULE GetActiveModule();
 	static std::string GetModuleName();
 	std::filesystem::path m_logFilePath;
@@ -21,12 +20,10 @@ private:
 public:
 	Logger() = default;
 	Logger(const Logger&) = delete;
-	Logger(Logger&&) = delete;
-	Logger(LogLevel logLevel, bool truncate);
-
+	Logger(const Logger&&) = delete;
+	Logger(const LogLevel logLevel, bool truncate) noexcept;
 	void Write(std::string_view text) const;
 	void Write(LogLevel logLevel, std::string_view text) const;
-
 };
 
 static Logger LOG(LogLevel::LOG_INFO, true); // set LogLevel to LOG_DEBUG for debugging

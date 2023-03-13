@@ -1,10 +1,9 @@
 #include "..\stdafx.h"
 
-Logger::Logger(LogLevel logLevel, bool truncate)
+Logger::Logger(const LogLevel logLevel, bool truncate) noexcept
+	: m_logFilePath(std::filesystem::current_path().append(std::format("{}.log", GetModuleName().data())))
+	, m_logLevel(logLevel)
 {
-	m_logFilePath = std::filesystem::current_path().append(std::format("{}.log", GetModuleName().data()));
-	m_logLevel = logLevel;
-
 	if (truncate)
 	{
 		Clear();
