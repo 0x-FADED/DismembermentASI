@@ -1,6 +1,6 @@
 #pragma once
 
-struct LiteralHash
+struct LiteralHash // optimizations using modern c++ features
 {
 	uint64_t val;
 

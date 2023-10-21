@@ -1,6 +1,6 @@
 #include "..\stdafx.h"
 
-PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, int type)
+PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, uint8_t type)
 {
 	// Size of each memory block. (= page size of VirtualAlloc)
 	constexpr uint64_t MEMORY_BLOCK_SIZE = 0x1000;

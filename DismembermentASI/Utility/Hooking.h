@@ -4,12 +4,12 @@ template <class T>
 class CallHook 
 {
 public:
+	PBYTE address; //0x00 - 0x08
+	T fn; //0x08 - 0x10 cuz T is a pointer here?
 	CallHook(PBYTE addr, T func) : address(addr), fn(func) { }
 	~CallHook();
 	void remove();
-	PBYTE address;
-	T fn;
-};
+}; //size: 16
 
 template <class T>
 void CallHook<T>::remove()
@@ -35,7 +35,7 @@ public:
 	template <class T, int Register>
 	static std::enable_if_t<(Register < 8 && Register >= 0), CallHook<T>> *SetCall(PBYTE address, T target)
 	{
-		if (address != nullptr && *reinterpret_cast<PBYTE>(address) != 0xE8)
+		if (address != nullptr && *reinterpret_cast<PBYTE>(address) != 0xE8) // just in case measures
 		{
 			LOG.Write(LogLevel::LOG_ERROR, "wrong opcode! cannot hook and continue. expected opcode 0xE8");
 			return nullptr;
@@ -45,7 +45,7 @@ public:
 
 		ptrdiff_t distance = ((intptr_t)target - (intptr_t)address - 5);
 
-		if (distance >= INT32_MAX || distance <= INT32_MIN) // we only need function stub if distance is not in int32_t range
+		if (distance >= INT32_MAX || distance <= INT32_MIN) // we only need function stub if distance is not in int32_t range or 4 bytes
 		{
 
 			auto functionStub = AllocateFunctionStub(GetModuleHandle(nullptr), (void*)target, Register);
@@ -58,7 +58,7 @@ public:
 		DWORD oldProtect;
 		VirtualProtect((BYTE*)address, 5Ui64, PAGE_EXECUTE_READWRITE, &oldProtect);
 
-		*reinterpret_cast<PBYTE>(address) = 0xE8;
+		*reinterpret_cast<PBYTE>(address) = 0xE8; // just in case we need to write a new call
 		*reinterpret_cast<int32_t*>(address + 1) = distance;
 
 		VirtualProtect((BYTE*)address, 5Ui64, oldProtect, &oldProtect);
@@ -67,7 +67,7 @@ public:
 		return new CallHook<T>(address, orig);
 	}
 private:
-	static PVOID AllocateFunctionStub(PVOID origin, PVOID function, int type);
+	static PVOID AllocateFunctionStub(PVOID origin, PVOID function, uint8_t type);
 	static inline ULONG_PTR AlignUp(ULONG_PTR stack, SIZE_T align);
 	static inline ULONG_PTR AlignDown(ULONG_PTR stack, SIZE_T align);
 };

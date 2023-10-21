@@ -24,10 +24,10 @@ public:
 private:
 	bool getPattern()
 	{
-		const auto dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(GetModuleHandle(nullptr));
-		const auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS64>(reinterpret_cast<uintptr_t>(dosHeader) + dosHeader->e_lfanew);
+		static const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(GetModuleHandleA(nullptr));
 
-		static const uintptr_t moduleBase = static_cast<uintptr_t>(ntHeaders->OptionalHeader.ImageBase);
+		auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS64>(moduleBase + reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase)->e_lfanew);
+
 		static const uintptr_t moduleEnd = moduleBase + static_cast<uintptr_t>(ntHeaders->OptionalHeader.SizeOfImage);
 
 		const uintptr_t address = FindPattern(moduleBase, moduleEnd, pattern);
