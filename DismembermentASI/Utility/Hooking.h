@@ -12,7 +12,7 @@ public:
 }; //size: 16
 
 template <class T>
-void CallHook<T>::remove()
+void CallHook<T>::remove() //restore the call to the original function
 {
 	DWORD oldProtect;
 	VirtualProtect((BYTE*)address, 5Ui64, PAGE_EXECUTE_READWRITE, &oldProtect);
@@ -29,10 +29,10 @@ CallHook<T>::~CallHook()
 	CallHook<T>::remove();
 }
 
-class HookManager
+class HookManager // our main class for Hook Logic
 {
 public:
-	template <class T, int Register>
+	template <class T, uint8_t Register>
 	static std::enable_if_t<(Register < 8 && Register >= 0), CallHook<T>> *SetCall(PBYTE address, T target)
 	{
 		if (address != nullptr && *reinterpret_cast<PBYTE>(address) != 0xE8) // just in case measures
@@ -45,7 +45,7 @@ public:
 
 		ptrdiff_t distance = ((intptr_t)target - (intptr_t)address - 5);
 
-		if (distance >= INT32_MAX || distance <= INT32_MIN) // we only need function stub if distance is not in int32_t range or 4 bytes
+		if (distance >= INT32_MAX || distance <= INT32_MIN) // we only need function stub if distance is not within int32_t range or 4 bytes
 		{
 
 			auto functionStub = AllocateFunctionStub(GetModuleHandle(nullptr), (void*)target, Register);

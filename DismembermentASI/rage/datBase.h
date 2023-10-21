@@ -5,8 +5,9 @@ namespace rage
 	class datBase //0x0-0x8
 	{
 	public:
-		virtual ~datBase() {}
-	}; static_assert(sizeof(datBase) == 0x8, "datBase is of wrong size");
+		datBase() = default;
+		virtual ~datBase() = default;
+	}; static_assert(sizeof(datBase) == 0x08, "datBase is of wrong size");
 
 	typedef __m128 CVector; //CVector for SIMD vector
 

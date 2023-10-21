@@ -84,11 +84,6 @@ namespace rage
 			return (pointer == nullptr);
 		}
 
-		T* get(int index)
-		{
-			return &pointer[index];
-		}
-
 		void Resolve(BlockMap* blockMap = nullptr)
 		{
 			if (on_disk.blockType == nullptr && on_disk.pointer == nullptr)
@@ -103,7 +98,7 @@ namespace rage
 		pgPtr<BlockMap> m_blockMap;
 
 	public:
-		void SetBlockMap() { m_blockMap; }
+		void SetBlockMap() {  }
 
 		pgBase()
 		{
@@ -157,7 +152,7 @@ namespace rage
 			m_resizable = false;
 		}
 
-		inline T* find(const uint32_t& hash) const
+		inline T* find(const uint32_t& hash) const //const uint32& to trick the compiler
 		{
 			for (auto i = m_data.m_objects[hash % m_data.GetCount()]; i != nullptr; i = i->m_next)
 			{

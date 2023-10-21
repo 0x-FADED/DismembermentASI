@@ -2,7 +2,7 @@
 
 struct LiteralHash // optimizations using modern c++ features
 {
-	uint64_t val;
+	uint64_t val; //0x00 - 0x08
 
 	LiteralHash() = delete;
 
@@ -28,9 +28,9 @@ struct LiteralHash // optimizations using modern c++ features
 
 		return hash;
 	}
-};
+}; // size: 0x08
 
-class AddressPool
+class AddressPool //we are gonna store addresses as hashes instead of strings for faster lookup
 {
 private:
 	ankerl::unordered_dense::map<std::uint64_t, MemAddr> map;

@@ -71,8 +71,8 @@ namespace rage
 			return m_boneData[boneIndex].m_boneName;
 		}
 
-		// taken / adapted from rage::crSkeletonData::ConvertBoneIdToIndex -- E8 ? ? ? ? 39 9D 00 02 00 00
-		inline int32_t ConvertBoneIdToIndex(const int32_t& boneId) const
+		// taken from rage::crSkeletonData::ConvertBoneIdToIndex -- see for details E8 ? ? ? ? 39 9D 00 02 00 00
+		inline int32_t ConvertBoneIdToIndex(int32_t boneId) const
 		{
 			if (m_boneTag.m_data.m_size == 0)
 			{

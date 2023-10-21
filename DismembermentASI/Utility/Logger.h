@@ -19,8 +19,6 @@ private:
 	void Clear() const;
 public:
 	Logger() = default;
-	Logger(const Logger&) = delete;
-	Logger(const Logger&&) = delete;
 	Logger(const LogLevel logLevel, bool truncate) noexcept;
 	void Write(std::string_view text) const;
 	void Write(LogLevel logLevel, std::string_view text) const;
