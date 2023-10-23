@@ -7,7 +7,7 @@ using namespace Game;
 
 using Ped = int32_t;
 
-typedef std::uint32_t (*rage__fragCache__DrawSkeleton)(rage::fragCache*, uint32_t*, int, CBaseModelInfo*, bool, __int64, uint8_t, uint8_t, short, short, float);
+typedef std::uint32_t(*rage__fragCache__DrawSkeleton)(rage::fragCache*, uint32_t*, int, CBaseModelInfo*, bool, __int64, uint8_t, uint8_t, short, short, float);
 
 static std::vector<CallHook<rage__fragCache__DrawSkeleton>*> g_drawFunctions;
 
@@ -33,7 +33,7 @@ std::mutex g_mutex;
  */
 std::uint32_t rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uint32_t* drawBuffer, int isFragment, CBaseModelInfo* modelInfo, bool bUnk, __int64 unkBoneIndex, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale)
 {
-	
+
 	std::unique_lock<std::mutex> lock(g_mutex);
 
 	for (auto it = g_pedList.begin(); it != g_pedList.end();)
@@ -76,7 +76,7 @@ std::uint32_t rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uin
 
 void initialize()
 {
-	if (!InititalizeGame()) 
+	if (!InititalizeGame())
 	{
 		LOG.Write(LogLevel::LOG_ERROR, "Failed to initialize game. Cannot continue.");
 		return;
@@ -109,15 +109,15 @@ DLL_EXPORT void RemoveBoneDraw(Ped handle)
 {
 	std::unique_lock<std::mutex> lock(g_mutex);
 
-	auto pair = g_pedList.find( handle );
+	auto pair = g_pedList.find(handle);
 
 	if (pair != g_pedList.end())
 	{
-		g_pedList.erase( handle );
+		g_pedList.erase(handle);
 	}
 }
 
-void unload() 
+void unload()
 {
 	for (auto& function : g_drawFunctions)
 	{
