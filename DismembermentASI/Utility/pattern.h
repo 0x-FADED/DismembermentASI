@@ -24,7 +24,11 @@ public:
 private:
 	bool getPattern()
 	{
-		static const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(GetModuleHandleA(nullptr));
+		// mov rax, gs:30h     ; NtCurrentTeb() or ptr to the thread environment block or the PTEB
+		// mov rdx, [rax+0x60] ; PPEB + 0x60 = PPEB or ptr to the process environment block
+		// mov rax, [rdx+0x10] ; PEB + 0x10 = ImageBaseAddress
+		// pretty smart huh?
+		static const uintptr_t moduleBase = *(uintptr_t*)(*(uint64_t*)(((uint64_t)NtCurrentTeb()) + 0x60) + 0x10); // getting module base in this way should save some processing
 
 		auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS64>(moduleBase + reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase)->e_lfanew);
 
