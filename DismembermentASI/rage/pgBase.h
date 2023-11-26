@@ -152,7 +152,7 @@ namespace rage
 			m_resizable = false;
 		}
 
-		inline T* find(const uint32_t& hash) const //const uint32& to trick the compiler
+		inline auto find(const uint32_t& hash) const -> T* //const uint32& to trick the compiler
 		{
 			for (auto i = m_data.m_objects[hash % m_data.GetCount()]; i != nullptr; i = i->m_next)
 			{

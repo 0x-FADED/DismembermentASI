@@ -11,12 +11,12 @@ struct LiteralHash // optimizations using modern c++ features
 	{
 	}
 
-	static constexpr uint64_t FNV1A(const std::string_view str)
+	static constexpr auto FNV1A(const std::string_view str) -> uint64_t
 	{
 		return _FNV1A(str.data(), str.length());
 	}
 
-	static constexpr uint64_t _FNV1A(const char* str, size_t length)
+	static constexpr auto _FNV1A(const char* str, size_t length) -> uint64_t
 	{
 		uint64_t hash = 0x100000001B3ull;
 
@@ -35,8 +35,8 @@ class AddressPool //we are gonna store addresses as hashes instead of strings fo
 private:
 	ankerl::unordered_dense::map<std::uint64_t, MemAddr> map;
 public:
-	void insert(const std::string_view key, MemAddr address);
-	MemAddr& operator[](const LiteralHash key);
+	void insert(std::string_view key, MemAddr address);
+	auto operator[](const LiteralHash key) noexcept -> MemAddr&;
 };
 
 class AddressMgr
@@ -46,8 +46,8 @@ private:
 public:
 	void clear();
 	size_t size() const;
-	AddressPool*& get(const LiteralHash category);
-	AddressPool*& getOrCreate(const std::string_view category);
+	auto get(const LiteralHash category) noexcept -> AddressPool*&;
+	auto getOrCreate(std::string_view category) -> AddressPool*&;
 	~AddressMgr();
 };
 

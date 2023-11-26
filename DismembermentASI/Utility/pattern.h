@@ -4,7 +4,7 @@ template <class T>
 class Pattern
 {
 public:
-	inline Pattern(const std::string_view pattern) : pattern(pattern.data())
+	inline Pattern(std::string_view pattern) : pattern(pattern.data())
 	{
 		bSuccess = getPattern();
 	}
@@ -22,13 +22,16 @@ public:
 	bool bSuccess;
 
 private:
-	bool getPattern()
+	auto getPattern() -> bool
 	{
 		// mov rax, gs:0x30    ; NtCurrentTeb() or ptr to the thread environment block or the PTEB
 		// mov rdx, [rax+0x60] ; TEB + 0x60 = PPEB or ptr to the process environment block
 		// mov rax, [rdx+0x10] ; PEB + 0x10 = ImageBaseAddress
 		// pretty smart huh?
-		static const uintptr_t moduleBase = *(uintptr_t*)(*(uint64_t*)(((uint64_t)__readgsqword(0x30)) + 0x60) + 0x10); // getting module base in this way should save some processing
+
+		//static const uintptr_t moduleBase = *reinterpret_cast<uintptr_t*>(*reinterpret_cast<uintptr_t*>(__readgsqword(0x30) + 0x60) + 0x10); // getting module base in this way should save some processing
+
+		static const uintptr_t moduleBase = *reinterpret_cast<uintptr_t*>(__readgsqword(0x60) + 0x10); 
 
 		auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS64>(moduleBase + reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase)->e_lfanew);
 
@@ -45,7 +48,7 @@ private:
 		return false;
 	}
 
-	static uintptr_t FindPattern(uintptr_t startAddress, uintptr_t endAddress, const char* mask)
+	static auto FindPattern(uintptr_t startAddress, uintptr_t endAddress, const char* mask) -> uintptr_t
 	{
 		std::vector<std::pair<uint8_t, bool>> pattern;
 
@@ -85,5 +88,5 @@ private:
 class BytePattern : public Pattern<BYTE*>
 {
 public:
-	inline BytePattern(const std::string_view pattern) : Pattern<BYTE*>(pattern.data()) {}
+	inline BytePattern(std::string_view pattern) : Pattern<BYTE*>(pattern.data()) {}
 };

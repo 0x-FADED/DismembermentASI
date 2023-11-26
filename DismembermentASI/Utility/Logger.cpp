@@ -1,7 +1,7 @@
 #include "..\stdafx.h"
 
 Logger::Logger(const LogLevel logLevel, bool truncate) noexcept
-	: m_logFilePath(std::filesystem::current_path().append(std::format("{}.log", GetModuleName().data())))
+	: m_logFilePath(std::filesystem::current_path().append(std::format(L"{}.log", GetModuleName().data())))
 	, m_logLevel(logLevel)
 {
 	if (truncate)
@@ -10,31 +10,31 @@ Logger::Logger(const LogLevel logLevel, bool truncate) noexcept
 	}
 }
 
-HMODULE Logger::GetActiveModule()
+inline auto Logger::GetActiveModule() -> HMODULE
 {
 	HMODULE hModule = nullptr;
 
-	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-		reinterpret_cast<LPCSTR>(&GetActiveModule),
+	GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+		reinterpret_cast<LPCWSTR>(&GetActiveModule),
 		&hModule);
 
 	return hModule;
 }
 
-std::string Logger::GetModuleName()
+auto Logger::GetModuleName() -> std::wstring
 {
-	TCHAR inBuf[MAX_PATH];
+	WCHAR inBuf[MAX_PATH];
 
-	GetModuleFileName(GetActiveModule(), inBuf, sizeof inBuf);
+	GetModuleFileNameW(GetActiveModule(), inBuf, std::size(inBuf));
 
-	auto str = std::string(inBuf);
+	auto str = std::wstring(inBuf);
 
-	auto seperator = str.find_last_of("\\");
+	auto seperator = str.find_last_of(L"\\");
 
-	if (seperator != std::string::npos)
+	if (seperator != std::wstring::npos)
 		seperator += 1;
 
-	return str.substr(seperator, str.find_last_of(".") - seperator);
+	return str.substr(seperator, str.find_last_of(L".") - seperator);
 }
 
 void Logger::Write(std::string_view text) const
@@ -53,7 +53,7 @@ void Logger::Write(LogLevel logLevel, std::string_view text) const
 	if (logFile)
 	{
 		auto time = std::chrono::zoned_time{ std::chrono::current_zone(), std::chrono::system_clock::now()};
-		logFile << std::format("[{:%Y-%m-%d %H:%M:%S}] [{}] {}", time, _logLevelPrefixes[static_cast<int>(logLevel)], text) << "\n";
+		logFile << std::format("[{:%Y-%m-%d %H:%M:%S}] [{}] {}", time, _logLevelPrefixes[static_cast<uint8_t>(logLevel)], text) << "\n";
 	}
 }
 

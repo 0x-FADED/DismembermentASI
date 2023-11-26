@@ -40,7 +40,7 @@ PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, uint8_t ty
 		param.Type = MemExtendedParameterAddressRequirements;
 		param.Pointer = &addressReqs;
 
-		auto pVirtualAlloc2 = (decltype(&::VirtualAlloc2))GetProcAddress(GetModuleHandleA("kernelbase.dll"), "VirtualAlloc2");
+		auto pVirtualAlloc2 = (decltype(&::VirtualAlloc2))GetProcAddress(GetModuleHandleW(L"kernelbase.dll"), "VirtualAlloc2");
 			
 		g_currentStub = pVirtualAlloc2(GetCurrentProcess(), nullptr, (SIZE_T)MEMORY_BLOCK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE, &param, 1);
 		if (g_currentStub != NULL)

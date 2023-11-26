@@ -7,7 +7,7 @@ using namespace Game;
 
 using Ped = int32_t;
 
-typedef std::uint32_t(*rage__fragCache__DrawSkeleton)(rage::fragCache*, uint32_t*, int, CBaseModelInfo*, bool, __int64, uint8_t, uint8_t, short, short, float);
+typedef std::uint32_t(*rage__fragCache__DrawSkeleton)(rage::fragCache*, uint32_t*, int32_t, CBaseModelInfo*, bool, __int64, uint8_t, uint8_t, short, short, float);
 
 static std::vector<CallHook<rage__fragCache__DrawSkeleton>*> g_drawFunctions;
 
@@ -16,12 +16,12 @@ struct DrawSkeletonInfo
 	/**
 	 * id of first bone in the skeleton that will be drawn.
 	 */
-	int startBoneId;
+	int32_t startBoneId;
 
 	/**
 	 * id of last bone in hierarchy.
 	 */
-	int endBoneId;
+	int32_t endBoneId;
 };
 
 std::map<Ped, DrawSkeletonInfo> g_pedList;
@@ -31,7 +31,7 @@ std::mutex g_mutex;
 /**
  * Main function where the skeleton is drawn by the engine.
  */
-std::uint32_t rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uint32_t* drawBuffer, int isFragment, CBaseModelInfo* modelInfo, bool bUnk, __int64 unkBoneIndex, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale)
+auto rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uint32_t* drawBuffer, int32_t isFragment, CBaseModelInfo* modelInfo, bool bUnk, __int64 unkBoneIndex, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale) -> std::uint32_t
 {
 
 	std::unique_lock<std::mutex> lock(g_mutex);

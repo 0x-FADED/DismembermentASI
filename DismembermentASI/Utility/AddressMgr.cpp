@@ -1,11 +1,11 @@
 #include "..\stdafx.h"
 
-void AddressPool::insert(const std::string_view key, MemAddr address)
+void AddressPool::insert(std::string_view key, MemAddr address)
 {
 	map.try_emplace(LiteralHash::FNV1A(key), address);
 }
 
-MemAddr& AddressPool::operator[](const LiteralHash key)
+auto AddressPool::operator[](const LiteralHash key) noexcept -> MemAddr&
 {
 	return map.at(key.val);
 }
@@ -20,12 +20,12 @@ size_t AddressMgr::size() const
 	return items.size();
 }
 
-AddressPool*& AddressMgr::get(const LiteralHash key)
+auto AddressMgr::get(const LiteralHash key) noexcept -> AddressPool*&
 {
 	return items[key.val];
 }
 
-AddressPool*& AddressMgr::getOrCreate(const std::string_view str)
+auto AddressMgr::getOrCreate(std::string_view str) -> AddressPool*&
 {
 	auto& result = get("GTA5");
 

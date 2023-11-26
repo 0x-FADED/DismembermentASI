@@ -8,6 +8,7 @@ public:
 	T fn; //0x08 - 0x10 cuz T is a pointer here?
 	CallHook(PBYTE addr, T func) : address(addr), fn(func) { }
 	~CallHook();
+private:
 	void remove();
 }; //size: 16
 
@@ -48,7 +49,7 @@ public:
 		if (distance >= INT32_MAX || distance <= INT32_MIN) // we only need function stub if distance is not within int32_t range or 4 bytes
 		{
 
-			auto functionStub = AllocateFunctionStub(GetModuleHandle(nullptr), (void*)target, Register);
+			auto functionStub = AllocateFunctionStub((PVOID)(*reinterpret_cast<uintptr_t*>(__readgsqword(0x60) + 0x10)), (void*)target, Register);
 
 		//	LOG.Write(LogLevel::LOG_DEBUG, std::format("allocated stub memory at {:#X}", (intptr_t)functionStub));
 
@@ -58,7 +59,7 @@ public:
 		DWORD oldProtect;
 		VirtualProtect((BYTE*)address, 5Ui64, PAGE_EXECUTE_READWRITE, &oldProtect);
 
-		*reinterpret_cast<PBYTE>(address) = 0xE8; // just in case we need to write a new call
+	//	*reinterpret_cast<PBYTE>(address) = 0xE8; // just in case we need to write a new call
 		*reinterpret_cast<int32_t*>(address + 1) = distance;
 
 		VirtualProtect((BYTE*)address, 5Ui64, oldProtect, &oldProtect);
