@@ -1,9 +1,5 @@
 #pragma once
 
-#pragma warning(disable:4244)
-#pragma warning(disable:4146)
-#pragma warning(disable:6387)
-
 #define NOMINMAX
 #include <windows.h>
 #include <vector>

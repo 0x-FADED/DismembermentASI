@@ -89,7 +89,7 @@ inline ULONG_PTR HookManager::AlignDown(ULONG_PTR stack, SIZE_T align)
 	assert(stack != 0);
 
 	auto addr = stack;
-	addr &= -align;
+	addr &= ~(align - 1);
 	assert(addr <= stack);
 	return addr;
 }
