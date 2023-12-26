@@ -7,7 +7,7 @@ bool Game::InititalizeGame()
 {
 	auto addresses = g_addresses.getOrCreate("GTA5");
 
-	//	auto hmodoule = (PBYTE)GetModuleHandle(nullptr);
+	//	auto hmodoule = (intptr_t)GetModuleHandle(nullptr);
 
 #pragma region rage::fwScriptGuid::GetBaseFromGuid
 
@@ -29,7 +29,7 @@ bool Game::InititalizeGame()
 
 #pragma region CEntity::GetIndexForBoneId
 
-	pattern = BytePattern("E8 ? ? ? ? 41 3B C5 74 ? 48");
+	pattern = BytePattern("41 0F 28 D1 45 33 C9 8B D0");
 
 	if (!pattern.bSuccess) {
 
@@ -37,7 +37,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	result = pattern.rip(1);
+	result = pattern.rip(-0xD);
 
 	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CEntity::GetIndexForBoneId address at {:#X}", result - hmodoule));
 
