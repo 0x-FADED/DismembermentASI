@@ -99,7 +99,7 @@ void initialize()
 	LOG.Write(LogLevel::LOG_INFO, "Hooks successful!");
 }
 
-DLL_EXPORT void AddBoneDraw(Ped handle, int start, int end)
+DLL_EXPORT void AddBoneDraw(Ped handle, int32_t start, int32_t end)
 {
 	g_pedList[handle].startBoneId = start;
 	g_pedList[handle].endBoneId = end;
