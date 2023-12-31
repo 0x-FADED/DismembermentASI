@@ -33,9 +33,7 @@ private:
 
 		static const uintptr_t moduleBase = *reinterpret_cast<uintptr_t*>(__readgsqword(0x60) + 0x10); 
 
-		auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS64>(moduleBase + reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase)->e_lfanew);
-
-		static const uintptr_t moduleEnd = moduleBase + static_cast<uintptr_t>(ntHeaders->OptionalHeader.SizeOfImage);
+		static const uintptr_t moduleEnd  = moduleBase + static_cast<uintptr_t>(reinterpret_cast<PIMAGE_NT_HEADERS64>(moduleBase + reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase)->e_lfanew)->OptionalHeader.SizeOfImage);
 
 		const uintptr_t address = FindPattern(moduleBase, moduleEnd, pattern);
 		if (address != NULL)
@@ -66,7 +64,7 @@ private:
 			}
 		}
 
-		const auto dataStart = reinterpret_cast<const uint8_t*>(startAddress);
+		const auto dataStart = reinterpret_cast<uint8_t*>(startAddress);
 		const auto dataEnd = dataStart + endAddress + 1;
 
 		auto sig = std::search(dataStart, dataEnd, pattern.begin(), pattern.end(),
@@ -78,15 +76,9 @@ private:
 		if (sig == dataEnd)
 			return NULL;
 
-		return std::distance<const uint8_t*>(dataStart, sig) + startAddress;
+		return std::distance<uint8_t*>(dataStart, sig) + startAddress;
 	}
 
 	const char* pattern;
 	T pResult;
-};
-
-class BytePattern : public Pattern<BYTE*>
-{
-public:
-	inline BytePattern(std::string_view pattern) : Pattern<BYTE*>(pattern.data()) {}
 };

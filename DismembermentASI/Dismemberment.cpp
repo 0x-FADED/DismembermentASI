@@ -78,7 +78,7 @@ void initialize()
 {
 	if (!InititalizeGame())
 	{
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to initialize game. Cannot continue.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to initialize game cannot continue.");
 		return;
 	}
 

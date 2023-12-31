@@ -44,7 +44,7 @@ void Logger::Write(std::string_view text) const
 
 void Logger::Write(LogLevel logLevel, std::string_view text) const
 {
-	if (m_logFilePath.empty() || m_logLevel == LogLevel::LOG_NONE || m_logLevel > logLevel || logLevel < LogLevel::LOG_NONE || logLevel > LogLevel::LOG_ERROR)
+	if (m_logFilePath.empty() || m_logLevel == LogLevel::LOG_NONE || m_logLevel > logLevel)
 	{
 		return;
 	}

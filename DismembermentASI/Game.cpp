@@ -11,7 +11,7 @@ bool Game::InititalizeGame()
 
 #pragma region rage::fwScriptGuid::GetBaseFromGuid
 
-	auto pattern = BytePattern("48 8B FA C6 44 24 ? ? E8");
+	auto pattern = Pattern<BYTE*>("48 8B FA C6 44 24 ? ? E8");
 
 	if (!pattern.bSuccess) {
 
@@ -29,7 +29,7 @@ bool Game::InititalizeGame()
 
 #pragma region CEntity::GetIndexForBoneId
 
-	pattern = BytePattern("41 0F 28 D1 45 33 C9 8B D0");
+	pattern = Pattern<BYTE*>("41 0F 28 D1 45 33 C9 8B D0");
 
 	if (!pattern.bSuccess) {
 
@@ -47,7 +47,7 @@ bool Game::InititalizeGame()
 
 #pragma region rage::fragCache::GetEntityFragCache
 
-	pattern = BytePattern("0F BA 77 ? ? 44 8B D3");
+	pattern = Pattern<BYTE*>("0F BA 77 ? ? 44 8B D3");
 
 	if (!pattern.bSuccess) {
 
@@ -65,7 +65,7 @@ bool Game::InititalizeGame()
 
 #pragma region rage::fragCache::GetLastSiblingBoneIndex
 
-	pattern = BytePattern("33 D2 45 0F BF 48 ?");
+	pattern = Pattern<BYTE*>("33 D2 45 0F BF 48 ?");
 
 	if (!pattern.bSuccess) {
 
@@ -83,7 +83,7 @@ bool Game::InititalizeGame()
 
 #pragma region rage::fragCache::DrawSkeleton // we will redirect the calls all of them
 
-	pattern = BytePattern("0F 18 ? 48 8B CA");
+	pattern = Pattern<BYTE*>("0F 18 ? 48 8B CA");
 
 	if (!pattern.bSuccess) {
 
@@ -96,7 +96,7 @@ bool Game::InititalizeGame()
 
 	addresses->insert("fragCache::DrawSkeleton_1", pattern.get(0x170));
 
-	pattern = BytePattern("44 88 44 24 ? 45 8B C4");
+	pattern = Pattern<BYTE*>("44 88 44 24 ? 45 8B C4");
 
 	if (!pattern.bSuccess) {
 
@@ -112,7 +112,7 @@ bool Game::InititalizeGame()
 	addresses->insert("fragCache::DrawSkeleton_3", pattern.get(11));
 	addresses->insert("fragCache::DrawSkeleton_4", pattern.get(0x7D));
 
-	pattern = BytePattern("41 0F 44 C5 48 8B D7");
+	pattern = Pattern<BYTE*>("41 0F 44 C5 48 8B D7");
 
 	if (!pattern.bSuccess) {
 
