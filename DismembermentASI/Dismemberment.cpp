@@ -7,9 +7,9 @@ using namespace Game;
 
 using Ped = int32_t;
 
-typedef std::uint32_t(*rage__fragCache__DrawSkeleton)(rage::fragCache*, uint32_t*, int32_t, CBaseModelInfo*, bool, __int64, uint8_t, uint8_t, short, short, float);
+typedef std::uint16_t(*CopyOffMatrixSet)(const rage::crSkeleton&, uint32_t&, int32_t, CBaseModelInfo*, rage::DrawListAddress, uint16_t*, uint8_t, uint8_t, short, short, float);
 
-static std::vector<CallHook<rage__fragCache__DrawSkeleton>*> g_drawFunctions;
+constinit std::vector<CallHook<CopyOffMatrixSet>*> g_drawFunctions;
 
 struct DrawSkeletonInfo
 {
@@ -31,35 +31,35 @@ std::mutex g_mutex;
 /**
  * Main function where the skeleton is drawn by the engine.
  */
-auto rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uint32_t* drawBuffer, int32_t isFragment, CBaseModelInfo* modelInfo, bool bUnk, __int64 unkBoneIndex, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale) -> std::uint32_t
+auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& drawBuffer, int32_t isFragment, CBaseModelInfo* modelInfo, rage::DrawListAddress drawListAddr, uint16_t* BoneMap, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale) -> std::uint16_t
 {
 
 	std::unique_lock<std::mutex> lock(g_mutex);
 
 	for (auto it = g_pedList.begin(); it != g_pedList.end();)
 	{
-		auto pedAddress = rage_fwScriptGuid_GetBaseFromGuid(it->first);
+		auto pedGUID = rage_fwScriptGuid_GetBaseFromGuid(it->first);
 
-		if (!pedAddress)
+		if (!pedGUID)
 		{
 			it = g_pedList.erase(it);
 		}
 
 		else
 		{
-			auto pedCache = rage__fragCache__GetEntityFragCache(pedAddress);
+			auto dSkel = GetSkeletonForDraw((CPed)pedGUID);
 
-			if (pedCache && pedCache == fragCache)
+			if (dSkel && dSkel == &crSkel)
 			{
 				if (it->second.startBoneId != -1)
 				{
-					startBoneIndex = fragCache->m_skeleton.m_skeletonData->ConvertBoneIdToIndex(it->second.startBoneId);
+					startBoneIndex = crSkel.m_skeletonData->ConvertBoneIdToIndex(it->second.startBoneId);
 
 					if (it->second.endBoneId != -1)
-						lastSiblingIndex = CEntity__GetIndexForBoneId(pedAddress, it->second.endBoneId);
+						lastSiblingIndex = CDynamicEntity__GetIndexForBoneId((CDynamicEntity)pedGUID, it->second.endBoneId);
 
 					else
-						lastSiblingIndex = rage__fragCache__GetLastSiblingBoneIndex(fragCache, startBoneIndex);
+						lastSiblingIndex = rage__crSkeleton__GetTerminatingPartialBone(crSkel, startBoneIndex);
 				}
 
 				drawScale = 0.0f;
@@ -71,7 +71,7 @@ auto rage__fragCache__DrawSkeleton_Hook(rage::fragCache* fragCache, uint32_t* dr
 		}
 	}
 
-	return g_drawFunctions[0]->fn(fragCache, drawBuffer, isFragment, modelInfo, bUnk, unkBoneIndex, componentType, subFragCache, startBoneIndex, lastSiblingIndex, drawScale);
+	return g_drawFunctions[0]->fn(crSkel, drawBuffer, isFragment, modelInfo, drawListAddr, BoneMap, componentType, subFragCache, startBoneIndex, lastSiblingIndex, drawScale);
 }
 
 void initialize()
@@ -82,19 +82,19 @@ void initialize()
 		return;
 	}
 
-	LOG.Write(LogLevel::LOG_INFO, "All patterns are valid proceeding to hook rage::fragCache::DrawSkeleton calls.");
+	LOG.Write(LogLevel::LOG_INFO, "All patterns are valid proceeding to hook CopyOffMatrixSet calls.");
 
 	auto& loc = *g_addresses.get("GTA5"); // using minhook and hooking the originial function would have been better
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_1"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_1"].addr), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_2"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_2"].addr), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_3"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_3"].addr), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_4"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_4"].addr), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<rage__fragCache__DrawSkeleton, NULL>(((PBYTE)loc["fragCache::DrawSkeleton_5"].addr), rage__fragCache__DrawSkeleton_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_5"].addr), CopyOffMatrixSet_Hook));
 
 	LOG.Write(LogLevel::LOG_INFO, "Hooks successful!");
 }

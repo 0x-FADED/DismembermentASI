@@ -199,7 +199,6 @@
     <ClInclude Include="rage\CEntity.h" />
     <ClInclude Include="rage\crSkeleton.h" />
     <ClInclude Include="rage\datBase.h" />
-    <ClInclude Include="rage\fragCache.h" />
     <ClInclude Include="rage\pgBase.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Utility\AddressMgr.h" />

@@ -47,9 +47,6 @@
     <ClInclude Include="rage\crSkeleton.h">
       <Filter>rage</Filter>
     </ClInclude>
-    <ClInclude Include="rage\fragCache.h">
-      <Filter>rage</Filter>
-    </ClInclude>
     <ClInclude Include="rage\CEntity.h">
       <Filter>rage</Filter>
     </ClInclude>

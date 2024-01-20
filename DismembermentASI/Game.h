@@ -1,33 +1,34 @@
 #pragma once
 
-typedef rage::CEntity* CEntity;
+typedef rage::CPed* CPed;
+typedef rage::CDynamicEntity* CDynamicEntity;
 
 namespace Game 
 {
 
 	bool InititalizeGame();
 
-	inline auto rage_fwScriptGuid_GetBaseFromGuid(int32_t handle) -> CEntity
+	inline auto rage_fwScriptGuid_GetBaseFromGuid(int32_t GUID) -> rage::fwExtensibleBase*
 	{
-		return ((CEntity(__fastcall*)(int32_t))
-			(*g_addresses.get("GTA5"))["rage::fwScriptGuid::GetBaseFromGuid"].addr)(handle);
+		return ((rage::fwExtensibleBase*(__fastcall*)(int32_t))
+			(*g_addresses.get("GTA5"))["rage::fwScriptGuid::GetBaseFromGuid"].addr)(GUID);
 	}
 
-	inline auto CEntity__GetIndexForBoneId(CEntity entity, uint16_t boneId) -> int
+	inline auto CDynamicEntity__GetIndexForBoneId(CDynamicEntity entity, uint16_t boneId) -> int32_t
 	{
-		return ((int(__fastcall*)(CEntity, uint16_t))
-			(*g_addresses.get("GTA5"))["CEntity::GetIndexForBoneId"].addr)(entity, boneId);
+		return ((int32_t(__fastcall*)(CDynamicEntity, uint16_t))
+			(*g_addresses.get("GTA5"))["CDynamicEntity::GetBoneIndexFromBoneTag"].addr)(entity, boneId);
 	}
 
-	inline auto rage__fragCache__GetEntityFragCache(CEntity entity) -> rage::fragCache*
+	inline auto GetSkeletonForDraw(CPed entity) -> rage::crSkeleton*
 	{
-		return ((rage::fragCache*(__fastcall*)(CEntity))
-			(*g_addresses.get("GTA5"))["rage::fragCache::GetEntityFragCache"].addr)(entity);
+		return ((rage::crSkeleton*(__fastcall*)(CPed))
+			(*g_addresses.get("GTA5"))["GetSkeletonForDraw"].addr)(entity);
 	}
 
-	inline auto rage__fragCache__GetLastSiblingBoneIndex(rage::fragCache* fragCache, uint16_t boneId) -> int
+	inline auto rage__crSkeleton__GetTerminatingPartialBone(const rage::crSkeleton& crSkel, uint16_t boneId) -> uint32_t
 	{
-		return ((int(__fastcall*)(rage::fragCache*, uint16_t))
-			(*g_addresses.get("GTA5"))["rage::fragCache::GetLastSiblingBoneIndex"].addr)(fragCache, boneId);
+		return ((uint32_t(__fastcall*)(const rage::crSkeleton&, uint16_t))
+			(*g_addresses.get("GTA5"))["rage::crSkeleton::GetTerminatingPartialBone"].addr)(crSkel, boneId);
 	}
 }

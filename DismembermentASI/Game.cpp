@@ -27,102 +27,102 @@ bool Game::InititalizeGame()
 
 #pragma endregion
 
-#pragma region CEntity::GetIndexForBoneId
+#pragma region CDynamicEntity::GetBoneIndexFromBoneTag
 
 	pattern = Pattern<BYTE*>("41 0F 28 D1 45 33 C9 8B D0");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find CEntity::GetIndexForBoneId pattern.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find CDynamicEntity::GetBoneIndexFromBoneTag pattern.");
 		return false;
 	}
 
 	result = pattern.rip(-0xD);
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CEntity::GetIndexForBoneId address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CDynamicEntity::GetBoneIndexFromBoneTag address at {:#X}", result - hmodoule));
 
-	addresses->insert("CEntity::GetIndexForBoneId", result);
+	addresses->insert("CDynamicEntity::GetBoneIndexFromBoneTag", result);
 
 #pragma endregion
 
-#pragma region rage::fragCache::GetEntityFragCache
+#pragma region GetSkeletonForDraw
 
 	pattern = Pattern<BYTE*>("0F BA 77 ? ? 44 8B D3");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find rage::fragCache::GetEntityFragCache pattern.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find GetSkeletonForDraw pattern.");
 		return false;
 	}
 
 	result = pattern.rip(-4);
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found rage::fragCache::GetEntityFragCache address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found GetSkeletonForDraw address at {:#X}", result - hmodoule));
 
-	addresses->insert("rage::fragCache::GetEntityFragCache", result);
+	addresses->insert("GetSkeletonForDraw", result);
 
 #pragma endregion
 
-#pragma region rage::fragCache::GetLastSiblingBoneIndex
+#pragma region rage::crSkeleton::GetTerminatingPartialBone
 
 	pattern = Pattern<BYTE*>("33 D2 45 0F BF 48 ?");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find rage::fragCache::GetLastSiblingBoneIndex pattern.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find rage::crSkeleton::GetTerminatingPartialBone pattern.");
 		return false;
 	}
 
 	result = pattern.get(-0x15);
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found rage::fragCache::GetLastSiblingBoneIndex address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found rage::crSkeleton::GetTerminatingPartialBone address at {:#X}", result - hmodoule));
 
-	addresses->insert("rage::fragCache::GetLastSiblingBoneIndex", result);
+	addresses->insert("rage::crSkeleton::GetTerminatingPartialBone", result);
 
 #pragma endregion
 
-#pragma region rage::fragCache::DrawSkeleton // we will redirect the calls all of them
+#pragma region CopyOffMatrixSet // we will redirect the calls all of them
 
 	pattern = Pattern<BYTE*>("0F 18 ? 48 8B CA");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find find hook pattern (rage::fragCache::DrawSkeleton #1). Cannot continue.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find find hook pattern (CopyOffMatrixSet #1). Cannot continue.");
 		return false;
 	}
 
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #1 address at {:#X}", pattern.get(0x170) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #1 address at {:#X}", pattern.get(0x170) - hmodoule));
 
-	addresses->insert("fragCache::DrawSkeleton_1", pattern.get(0x170));
+	addresses->insert("CopyOffMatrixSet_1", pattern.get(0x170));
 
 	pattern = Pattern<BYTE*>("44 88 44 24 ? 45 8B C4");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find hook pattern (rage::fragCache::DrawSkeleton #2). Cannot continue.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find hook pattern (CopyOffMatrixSet #2). Cannot continue.");
 		return false;
 	}
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(-0x9B) - hmodoule));
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(11) - hmodoule));
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #2 address at {:#X}", pattern.get(0x7D) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #2 address at {:#X}", pattern.get(-0x9B) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #2 address at {:#X}", pattern.get(11) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #2 address at {:#X}", pattern.get(0x7D) - hmodoule));
 
-	addresses->insert("fragCache::DrawSkeleton_2", pattern.get(-0x9B));
-	addresses->insert("fragCache::DrawSkeleton_3", pattern.get(11));
-	addresses->insert("fragCache::DrawSkeleton_4", pattern.get(0x7D));
+	addresses->insert("CopyOffMatrixSet_2", pattern.get(-0x9B));
+	addresses->insert("CopyOffMatrixSet_3", pattern.get(11));
+	addresses->insert("CopyOffMatrixSet_4", pattern.get(0x7D));
 
 	pattern = Pattern<BYTE*>("41 0F 44 C5 48 8B D7");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find hook pattern (rage::fragCache::DrawSkeleton #3). Cannot continue.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find hook pattern (CopyOffMatrixSet #3). Cannot continue.");
 		return false;
 	}
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found fragCache::DrawSkeleton #3 address at {:#X}",pattern.get(0x13) - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #3 address at {:#X}",pattern.get(0x13) - hmodoule));
 
-	addresses->insert("fragCache::DrawSkeleton_5", pattern.get(0x13));
+	addresses->insert("CopyOffMatrixSet_5", pattern.get(0x13));
 
 
 #pragma endregion

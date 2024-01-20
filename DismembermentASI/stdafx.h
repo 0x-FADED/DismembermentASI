@@ -25,7 +25,6 @@
 #include "rage/datBase.h"
 #include "rage/pgBase.h"
 #include "rage/crSkeleton.h"
-#include "rage/fragCache.h"
 #include "rage/CBaseModelInfo.h"
 #include "rage/CEntity.h"
 
