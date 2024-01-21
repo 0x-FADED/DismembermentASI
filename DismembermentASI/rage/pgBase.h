@@ -27,6 +27,37 @@ namespace rage
 		} blocks[128];
 	};
 
+	template <typename T>
+	struct datRef
+	{
+	private:
+		T* ptr;
+
+	public:
+		datRef(T* p) : ptr(p) {}
+
+		T& operator*() const
+		{
+			return *ptr;
+		}
+
+		T* operator->() const
+		{
+			return ptr;
+		}
+
+		operator T* () const
+		{
+			return ptr;
+		}
+
+		T*& operator=(T* other)
+		{
+			return ptr = other;
+		}
+
+	};
+
 	template<class T, bool Physical = false>
 	class pgPtr
 	{
@@ -52,14 +83,14 @@ namespace rage
 			return pointer;
 		}
 
-		T* operator*() const
+		T& operator*() const
 		{
 			return pointer;
 		}
 
-		T operator[](const int idx) const
+		operator T* () const
 		{
-			return pointer[idx];
+			return pointer;
 		}
 
 		pgPtr operator=(T* other)
@@ -139,7 +170,7 @@ namespace rage
 		{
 			uint32_t m_hash;
 			T m_idx;
-			HashEntry* m_next;
+			pgPtr<HashEntry> m_next;
 		}; //sizeof(HashEntry<int32_t>) == 0x10
 	public:
 		pgObjectArray<HashEntry*> m_data;

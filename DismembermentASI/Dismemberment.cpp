@@ -7,7 +7,7 @@ using namespace Game;
 
 using Ped = int32_t;
 
-typedef std::uint16_t(*CopyOffMatrixSet)(const rage::crSkeleton&, uint32_t&, int32_t, CBaseModelInfo*, rage::DrawListAddress, uint16_t*, uint8_t, uint8_t, short, short, float);
+typedef std::uint16_t(*CopyOffMatrixSet)(const rage::crSkeleton&, uint32_t&, int32_t, CBaseModelInfo*, bool, uint16_t*, uint8_t, uint8_t, short, short, float);
 
 constinit std::vector<CallHook<CopyOffMatrixSet>*> g_drawFunctions;
 
@@ -31,7 +31,7 @@ std::mutex g_mutex;
 /**
  * Main function where the skeleton is drawn by the engine.
  */
-auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& drawBuffer, int32_t isFragment, CBaseModelInfo* modelInfo, rage::DrawListAddress drawListAddr, uint16_t* BoneMap, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale) -> std::uint16_t
+auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& drawBuffer, int32_t isFragment, CBaseModelInfo* modelInfo, bool drawListAddr, uint16_t* BoneMap, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale) -> std::uint16_t
 {
 
 	std::unique_lock<std::mutex> lock(g_mutex);
@@ -54,12 +54,13 @@ auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& drawBuffer,
 				if (it->second.startBoneId != -1)
 				{
 					startBoneIndex = crSkel.m_skeletonData->ConvertBoneIdToIndex(it->second.startBoneId);
-
+					
 					if (it->second.endBoneId != -1)
-						lastSiblingIndex = CDynamicEntity__GetIndexForBoneId((CDynamicEntity)pedGUID, it->second.endBoneId);
+						lastSiblingIndex = CDynamicEntity__GetBoneIndexFromBoneTag((CDynamicEntity)pedGUID, it->second.endBoneId);
 
 					else
-						lastSiblingIndex = rage__crSkeleton__GetTerminatingPartialBone(crSkel, startBoneIndex);
+						lastSiblingIndex = crSkel.GetTerminatingPartialBone(startBoneIndex); /** rage__crSkeleton__GetTerminatingPartialBone(crSkel, startBoneIndex); **/
+					
 				}
 
 				drawScale = 0.0f;
@@ -86,9 +87,13 @@ void initialize()
 
 	auto& loc = *g_addresses.get("GTA5"); // using minhook and hooking the originial function would have been better
 
+	//1st three are inside CAddCompositeSkeletonCommand::CAddCompositeSkeletonCommand
+	//4th one is inside CAddSkeletonCommand::CAddSkeletonCommand
+	//5th one is inside CPedBigPrototype::AddDataForEntity
+
 	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_1"].addr), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_2"].addr), CopyOffMatrixSet_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_2"].addr), CopyOffMatrixSet_Hook)); 
 
 	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_3"].addr), CopyOffMatrixSet_Hook));
 

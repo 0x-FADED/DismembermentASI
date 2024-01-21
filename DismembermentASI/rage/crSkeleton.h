@@ -48,12 +48,12 @@ namespace rage
 		virtual void m_xz() = 0; // 'ERR_GEN_PAGE_1'
 
 		pgHashMap<int32_t> m_boneTag; //0x10 - 0x20
-		pgPtr<crBoneData> m_boneData; //0x20-0x28
-		pgPtr<Matrix44> m_invertedTransforms; //0x28-0x30
-		pgPtr<Matrix44> m_transformations; //0x30-0x38
-		pgPtr<uint16_t> m_parentIndices; //0x38-0x40
-		pgPtr<uint16_t> m_childIndices; //0x40-0x48
-		pgPtr<void> m_properties; //0x48-0x50 unk
+		datRef<crBoneData> m_boneData; //0x20-0x28
+		datRef<Matrix44> m_invertedTransforms; //0x28-0x30
+		datRef<Matrix44> m_transformations; //0x30-0x38
+		datRef<uint16_t> m_parentIndices; //0x38-0x40
+		datRef<uint16_t> m_childIndices; //0x40-0x48
+		datRef<class crProperties> m_properties; //0x48-0x50 rage::crProperties class has only VFTable inside, I could be wrong
 		uint32_t m_unk50; //0x50-0x54
 		uint32_t m_unk54; //0x54-0x58
 		uint32_t m_unk58; //0x58-0x5C
@@ -64,7 +64,7 @@ namespace rage
 		uint32_t m_unk64; //0x64-0x68
 		uint32_t m_unk68; //0x68-0x6C
 		uint32_t m_unk6C; //0x6C-0x70
-
+		
 		inline const char* getBoneName(int boneIndex) const
 		{
 			if (boneIndex >= m_numBones) return 0;
@@ -98,17 +98,58 @@ namespace rage
 #pragma pack(push, 1)
 	struct crSkeleton
 	{
-		pgPtr<crSkeletonData> m_skeletonData; //0x00 - 0x08
-		pgPtr<Matrix34> m_unkMatrices; //0x08 - 0x10
-		pgPtr<Matrix34> m_positionMatrices; //0x10 - 0x18
-		pgPtr<Matrix34> m_defaultMatrices; //0x18 - 0x20
+		pgPtr<const crSkeletonData> m_skeletonData; //0x00 - 0x08
+		datRef<const Matrix34> m_unkMatrices; //0x08 - 0x10
+		datRef<Matrix34> m_positionMatrices; //0x10 - 0x18
+		datRef<Matrix34> m_defaultMatrices; //0x18 - 0x20
 		int32_t m_boneCount; //0x20 - 0x24
+
+		//rage::crSkeleton::GetTerminatingPartialBone see "33 D2 45 0F BF 48 ?" -0x15 for details
+		inline uint32_t GetTerminatingPartialBone(uint32_t boneIndex) const
+		{
+			rage::crBoneData* currentBone = &m_skeletonData->m_boneData[boneIndex];
+			rage::crBoneData* terminatingBone = nullptr;
+
+			while (currentBone)
+			{
+				int32_t nextSiblingIndex = currentBone->m_nextSiblingIndex;
+
+				// If the bone has sibling at next, set terminatingBone to the next sibling and break out of the loop
+				if (nextSiblingIndex >= 0)
+				{
+					terminatingBone = &currentBone[nextSiblingIndex - static_cast<uint16_t>(currentBone->m_boneIndex)];
+					break;
+				}
+
+				int32_t parentBoneIndex = currentBone->m_parentBoneIndex;
+
+				// If the bone has no parent, set currentBone to nullptr
+				if (parentBoneIndex < 0)
+				{
+					currentBone = nullptr;
+				}
+				else
+				{
+					// Move to the parent bone
+					currentBone += parentBoneIndex - static_cast<uint16_t>(currentBone->m_boneIndex);
+				}
+
+				// If no more parent bones, return boneCount indicating termination
+				if (!currentBone)
+				{
+					return m_boneCount;
+				}
+			}
+			// If a terminating bone is found, return its index
+			return static_cast<uint16_t>(terminatingBone ? terminatingBone->m_boneIndex : 0);
+		}
 
 	}; static_assert(sizeof(crSkeleton) == 0x24, "crSkeleton is of wrong size"); //pretty sure about this one I ran into it's ctor
 #pragma pack(pop)
-
+	/**
 	struct DrawListAddress 
 	{
 		uint32_t m_DrawListAddress;
 	};
+	**/
 }

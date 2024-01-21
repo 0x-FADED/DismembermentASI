@@ -63,6 +63,7 @@ bool Game::InititalizeGame()
 
 #pragma endregion
 
+/**
 #pragma region rage::crSkeleton::GetTerminatingPartialBone
 
 	pattern = Pattern<BYTE*>("33 D2 45 0F BF 48 ?");
@@ -80,6 +81,7 @@ bool Game::InititalizeGame()
 	addresses->insert("rage::crSkeleton::GetTerminatingPartialBone", result);
 
 #pragma endregion
+**/
 
 #pragma region CopyOffMatrixSet // we will redirect the calls all of them
 
