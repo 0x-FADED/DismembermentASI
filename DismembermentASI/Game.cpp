@@ -45,21 +45,21 @@ bool Game::InititalizeGame()
 
 #pragma endregion
 
-#pragma region GetSkeletonForDraw
+#pragma region GetSkeletonForDrawIgnoringDrawlist
 
-	pattern = Pattern<BYTE*>("0F BA 77 ? ? 44 8B D3");
+	pattern = Pattern<BYTE*>("48 03 F3 45 8B CF");
 
 	if (!pattern.bSuccess) {
 
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to find GetSkeletonForDraw pattern.");
+		LOG.Write(LogLevel::LOG_ERROR, "Failed to find GetSkeletonForDrawIgnoringDrawlist pattern.");
 		return false;
 	}
 
-	result = pattern.rip(-4);
+	result = pattern.rip(-0x8A);
 
-	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found GetSkeletonForDraw address at {:#X}", result - hmodoule));
+	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found GetSkeletonForDrawIgnoringDrawlist address at {:#X}", result - hmodoule));
 
-	addresses->insert("GetSkeletonForDraw", result);
+	addresses->insert("GetSkeletonForDrawIgnoringDrawlist", result);
 
 #pragma endregion
 

@@ -85,7 +85,7 @@ namespace rage
 
 		T& operator*() const
 		{
-			return pointer;
+			return *pointer;
 		}
 
 		operator T* () const

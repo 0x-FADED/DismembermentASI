@@ -9,8 +9,6 @@ using Ped = int32_t;
 
 typedef std::uint16_t(*CopyOffMatrixSet)(const rage::crSkeleton&, uint32_t&, int32_t, CBaseModelInfo*, bool, uint16_t*, uint8_t, uint8_t, short, short, float);
 
-constinit std::vector<CallHook<CopyOffMatrixSet>*> g_drawFunctions;
-
 struct DrawSkeletonInfo
 {
 	/**
@@ -24,14 +22,16 @@ struct DrawSkeletonInfo
 	int32_t endBoneId;
 };
 
-std::map<Ped, DrawSkeletonInfo> g_pedList;
+constinit std::vector<CallHook<CopyOffMatrixSet>*> g_drawFunctions;
 
-std::mutex g_mutex;
+static std::map<Ped, DrawSkeletonInfo> g_pedList;
+
+static std::mutex g_mutex;
 
 /**
- * Main function where the skeleton is drawn by the engine.
+ * Main function where the skeleton matrix is copied for drawing by the engine.
  */
-auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& drawBuffer, int32_t isFragment, CBaseModelInfo* modelInfo, bool drawListAddr, uint16_t* BoneMap, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale) -> std::uint16_t
+static auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& drawBuffer, int32_t isFragment, CBaseModelInfo* modelInfo, bool drawListAddr, uint16_t* BoneMap, uint8_t componentType, uint8_t subFragCache, short startBoneIndex, short lastSiblingIndex, float drawScale) -> std::uint16_t
 {
 
 	std::unique_lock<std::mutex> lock(g_mutex);
@@ -47,7 +47,9 @@ auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& drawBuffer,
 
 		else
 		{
-			auto dSkel = GetSkeletonForDraw((CPed)pedGUID);
+			//we are gonna use GetSkeletonForDrawIgnoringDrawlist instead of GetSkeletonForDraw to skip checking thread related shit each time this gets called
+
+			auto dSkel = GetSkeletonForDrawIgnoringDrawlist(static_cast<CEntity>(pedGUID));
 
 			if (dSkel && dSkel == &crSkel)
 			{
@@ -56,7 +58,7 @@ auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& drawBuffer,
 					startBoneIndex = crSkel.m_skeletonData->ConvertBoneIdToIndex(it->second.startBoneId);
 					
 					if (it->second.endBoneId != -1)
-						lastSiblingIndex = CDynamicEntity__GetBoneIndexFromBoneTag((CDynamicEntity)pedGUID, it->second.endBoneId);
+						lastSiblingIndex = CDynamicEntity__GetBoneIndexFromBoneTag(static_cast<CDynamicEntity>(pedGUID), it->second.endBoneId);
 
 					else
 						lastSiblingIndex = crSkel.GetTerminatingPartialBone(startBoneIndex); /** rage__crSkeleton__GetTerminatingPartialBone(crSkel, startBoneIndex); **/
