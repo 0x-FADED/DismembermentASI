@@ -5,9 +5,9 @@ void AddressPool::insert(std::string_view key, MemAddr address)
 	map.try_emplace(LiteralHash::FNV1A(key), address);
 }
 
-auto AddressPool::operator[](const LiteralHash key) noexcept -> MemAddr&
+auto AddressPool::operator[](const LiteralHash key) noexcept -> void*
 {
-	return map.at(key.val);
+	return map.at(key.val).get_raw();
 }
 
 void AddressMgr::clear()

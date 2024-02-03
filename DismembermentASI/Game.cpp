@@ -11,7 +11,7 @@ bool Game::InititalizeGame()
 
 #pragma region rage::fwScriptGuid::GetBaseFromGuid
 
-	auto pattern = Pattern<BYTE*>("48 8B FA C6 44 24 ? ? E8");
+	auto pattern = Pattern("48 8B FA C6 44 24 ? ? E8");
 
 	if (!pattern.bSuccess) {
 
@@ -19,7 +19,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	auto result = pattern.rip(9);
+	auto result = pattern.find().get(9).rip(4);
 
 	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found rage::fwScriptGuid::GetBaseFromGuid address at {:#X}", result - hmodoule));
 
@@ -29,7 +29,7 @@ bool Game::InititalizeGame()
 
 #pragma region CDynamicEntity::GetBoneIndexFromBoneTag
 
-	pattern = Pattern<BYTE*>("41 0F 28 D1 45 33 C9 8B D0");
+	pattern = Pattern("41 0F 28 D1 45 33 C9 8B D0");
 
 	if (!pattern.bSuccess) {
 
@@ -37,7 +37,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	result = pattern.rip(-0xD);
+	result = pattern.find().get(-0xD).rip(4);
 
 	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CDynamicEntity::GetBoneIndexFromBoneTag address at {:#X}", result - hmodoule));
 
@@ -47,7 +47,7 @@ bool Game::InititalizeGame()
 
 #pragma region GetSkeletonForDrawIgnoringDrawlist
 
-	pattern = Pattern<BYTE*>("48 03 F3 45 8B CF");
+	pattern = Pattern("48 03 F3 45 8B CF");
 
 	if (!pattern.bSuccess) {
 
@@ -55,7 +55,7 @@ bool Game::InititalizeGame()
 		return false;
 	}
 
-	result = pattern.rip(-0x8A);
+	result = pattern.find().get(-0x8A).rip(4);
 
 	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found GetSkeletonForDrawIgnoringDrawlist address at {:#X}", result - hmodoule));
 
@@ -85,7 +85,7 @@ bool Game::InititalizeGame()
 
 #pragma region CopyOffMatrixSet // we will redirect the calls all of them
 
-	pattern = Pattern<BYTE*>("0F 18 ? 48 8B CA");
+	pattern = Pattern("0F 18 ? 48 8B CA");
 
 	if (!pattern.bSuccess) {
 
@@ -96,9 +96,9 @@ bool Game::InititalizeGame()
 
 	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #1 address at {:#X}", pattern.get(0x170) - hmodoule));
 
-	addresses->insert("CopyOffMatrixSet_1", pattern.get(0x170));
+	addresses->insert("CopyOffMatrixSet_1", pattern.find().get(0x170));
 
-	pattern = Pattern<BYTE*>("44 88 44 24 ? 45 8B C4");
+	pattern = Pattern("44 88 44 24 ? 45 8B C4");
 
 	if (!pattern.bSuccess) {
 
@@ -110,11 +110,11 @@ bool Game::InititalizeGame()
 	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #2 address at {:#X}", pattern.get(11) - hmodoule));
 	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #2 address at {:#X}", pattern.get(0x7D) - hmodoule));
 
-	addresses->insert("CopyOffMatrixSet_2", pattern.get(-0x9B));
-	addresses->insert("CopyOffMatrixSet_3", pattern.get(11));
-	addresses->insert("CopyOffMatrixSet_4", pattern.get(0x7D));
+	addresses->insert("CopyOffMatrixSet_2", pattern.find().get(-0x9B));
+	addresses->insert("CopyOffMatrixSet_3", pattern.find().get(11));
+	addresses->insert("CopyOffMatrixSet_4", pattern.find().get(0x7D));
 
-	pattern = Pattern<BYTE*>("41 0F 44 C5 48 8B D7");
+	pattern = Pattern("41 0F 44 C5 48 8B D7");
 
 	if (!pattern.bSuccess) {
 
@@ -124,7 +124,7 @@ bool Game::InititalizeGame()
 
 	//	LOG.Write(LogLevel::LOG_DEBUG, std::format("found CopyOffMatrixSet #3 address at {:#X}",pattern.get(0x13) - hmodoule));
 
-	addresses->insert("CopyOffMatrixSet_5", pattern.get(0x13));
+	addresses->insert("CopyOffMatrixSet_5", pattern.find().get(0x13));
 
 
 #pragma endregion

@@ -1,22 +1,31 @@
 #pragma once
 
-struct MemAddr
+class MemAddr
 {
-	MemAddr() : MemAddr(nullptr) {}
+public:
+	MemAddr() : m_ptr(nullptr) {}
 
-	MemAddr(uintptr_t address) : addr(address) {}
+	explicit MemAddr(uintptr_t ptr) : m_ptr(reinterpret_cast<void*>(ptr)) {}
 
-	MemAddr(void * obj) : MemAddr(reinterpret_cast<uintptr_t>(obj)) {}
+	MemAddr(void* obj) : MemAddr(reinterpret_cast<uintptr_t>(obj)) {}
 
-	uintptr_t addr;
-
-	MemAddr add(MemAddr m) const
+	template <typename T = BYTE>
+	MemAddr get(ptrdiff_t offset = 0) const
 	{
-		return MemAddr(addr + m.addr);
+		return MemAddr(reinterpret_cast<T*>(m_ptr) + offset);
 	}
 
-	operator uintptr_t() const
+	template<typename T = BYTE>
+	MemAddr rip(ptrdiff_t offset = 0) const
 	{
-		return addr;
+		return MemAddr(*reinterpret_cast<int32_t*>(m_ptr) + reinterpret_cast<T*>(m_ptr) + offset);
 	}
+
+	void* get_raw()
+	{
+		return m_ptr;
+	}
+
+private:
+	void* m_ptr;
 };

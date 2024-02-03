@@ -93,15 +93,15 @@ void initialize()
 	//4th one is inside CAddSkeletonCommand::CAddSkeletonCommand
 	//5th one is inside CPedBigPrototype::AddDataForEntity
 
-	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_1"].addr), CopyOffMatrixSet_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_1"]), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_2"].addr), CopyOffMatrixSet_Hook)); 
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_2"]), CopyOffMatrixSet_Hook)); 
 
-	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_3"].addr), CopyOffMatrixSet_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_3"]), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_4"].addr), CopyOffMatrixSet_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_4"]), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_5"].addr), CopyOffMatrixSet_Hook));
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_5"]), CopyOffMatrixSet_Hook));
 
 	LOG.Write(LogLevel::LOG_INFO, "Hooks successful!");
 }

@@ -36,7 +36,7 @@ private:
 	ankerl::unordered_dense::map<std::uint64_t, MemAddr> map;
 public:
 	void insert(std::string_view key, MemAddr address);
-	auto operator[](const LiteralHash key) noexcept -> MemAddr&;
+	auto operator[](const LiteralHash key) noexcept -> void*;
 };
 
 class AddressMgr

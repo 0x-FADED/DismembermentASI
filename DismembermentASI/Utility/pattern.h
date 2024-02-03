@@ -1,6 +1,6 @@
 #pragma once
 
-template <class T>
+
 class Pattern
 {
 public:
@@ -9,20 +9,14 @@ public:
 		bSuccess = getPattern();
 	}
 
-	inline T get(ptrdiff_t offset = 0)
+	MemAddr find() const
 	{
-		return pResult + offset;
-	}
-	inline T rip(ptrdiff_t offset = 0)
-	{
-		auto pReloffset = *reinterpret_cast<int32_t*>(pResult + offset) + sizeof(int32_t);
-		return pResult + offset + pReloffset;
+		return m_address;
 	}
 
 	bool bSuccess;
-
 private:
-	auto getPattern() -> bool
+	bool getPattern()
 	{
 		// mov rax, gs:0x30    ; NtCurrentTeb() or ptr to the thread environment block or the PTEB
 		// mov rdx, [rax+0x60] ; TEB + 0x60 = PPEB or ptr to the process environment block
@@ -31,18 +25,19 @@ private:
 
 		//static const uintptr_t moduleBase = *reinterpret_cast<uintptr_t*>(*reinterpret_cast<uintptr_t*>(__readgsqword(0x30) + 0x60) + 0x10); // getting module base in this way should save some processing
 
-		static const uintptr_t moduleBase = *reinterpret_cast<uintptr_t*>(__readgsqword(0x60) + 0x10); 
+		static const uintptr_t moduleBase = *reinterpret_cast<uintptr_t*>(__readgsqword(0x60) + 0x10);
 
-		static const uintptr_t moduleEnd  = moduleBase + static_cast<uintptr_t>(reinterpret_cast<PIMAGE_NT_HEADERS64>(moduleBase + reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase)->e_lfanew)->OptionalHeader.SizeOfImage);
+		static const uintptr_t moduleEnd = moduleBase + static_cast<uintptr_t>(reinterpret_cast<PIMAGE_NT_HEADERS64>(moduleBase + reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase)->e_lfanew)->OptionalHeader.SizeOfImage);
 
 		const uintptr_t address = FindPattern(moduleBase, moduleEnd, pattern);
 		if (address != NULL)
 		{
-			pResult = reinterpret_cast<T>(address);
+			m_address = MemAddr(address);
+
 			return true;
 		}
 
-		pResult = NULL;
+		m_address = MemAddr();
 		return false;
 	}
 
@@ -80,5 +75,5 @@ private:
 	}
 
 	const char* pattern;
-	T pResult;
+	MemAddr m_address;
 };
