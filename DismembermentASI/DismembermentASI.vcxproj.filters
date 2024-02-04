@@ -73,5 +73,8 @@
     <ClCompile Include="Utility\AddressMgr.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\pattern.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

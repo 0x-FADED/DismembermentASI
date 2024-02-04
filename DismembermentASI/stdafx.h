@@ -14,11 +14,11 @@
 #include "..\external\unordered_dense\include\ankerl\unordered_dense.h"
 
 #include "Utility/MemAddr.h"
+#include "Utility/pattern.h"
 #include "Utility/AddressMgr.h"
 
 #include "Utility/Logger.h"
 #include "Utility/Hooking.h"
-#include "Utility/pattern.h"
 
 #pragma region RAGE Includes
 

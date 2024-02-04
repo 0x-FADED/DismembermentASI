@@ -1,31 +1,34 @@
 #pragma once
 
-class MemAddr
+template<class T = std::byte>
+class MemAddr 
 {
 public:
-	MemAddr() : m_ptr(nullptr) {}
+    constexpr MemAddr() = default;
 
-	explicit MemAddr(uintptr_t ptr) : m_ptr(reinterpret_cast<void*>(ptr)) {}
+    inline explicit MemAddr(std::uintptr_t ptr) : m_ptr(reinterpret_cast<T*>(ptr)) {}
 
-	MemAddr(void* obj) : MemAddr(reinterpret_cast<uintptr_t>(obj)) {}
+    inline explicit MemAddr(void* obj) : MemAddr(reinterpret_cast<std::uintptr_t>(obj)) {}
 
-	template <typename T = BYTE>
-	MemAddr get(ptrdiff_t offset = 0) const
-	{
-		return MemAddr(reinterpret_cast<T*>(m_ptr) + offset);
-	}
+    template <typename U = T>
+    [[nodiscard]] inline MemAddr<> get(std::ptrdiff_t offset = 0) const 
+    {
+        return MemAddr<>(reinterpret_cast<U*>(m_ptr) + offset);
+    }
 
-	template<typename T = BYTE>
-	MemAddr rip(ptrdiff_t offset = 0) const
-	{
-		return MemAddr(*reinterpret_cast<int32_t*>(m_ptr) + reinterpret_cast<T*>(m_ptr) + offset);
-	}
+    template <typename R = T>
+    [[nodiscard]] inline MemAddr<> rip(std::ptrdiff_t offset = 0) const
+    {
+        return MemAddr<>(*reinterpret_cast<std::int32_t*>(m_ptr) + reinterpret_cast<R*>(m_ptr) + offset);
+    }
 
-	void* get_raw()
-	{
-		return m_ptr;
-	}
+protected:
+    [[nodiscard]] inline T* get_raw() const
+    {
+        return m_ptr;
+    }
 
 private:
-	void* m_ptr;
+    friend class AddressPool;
+    T* m_ptr = nullptr;
 };
