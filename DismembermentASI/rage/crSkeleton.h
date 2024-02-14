@@ -65,14 +65,14 @@ namespace rage
 		uint32_t m_unk68; //0x68-0x6C
 		uint32_t m_unk6C; //0x6C-0x70
 		
-		inline const char* getBoneName(int boneIndex) const
+		inline const char* getBoneName(int boneIndex) const&
 		{
 			if (boneIndex >= m_numBones) return 0;
 			return m_boneData[boneIndex].m_boneName;
 		}
 
 		// taken from rage::crSkeletonData::ConvertBoneIdToIndex -- see for details E8 ? ? ? ? 39 9D 00 02 00 00
-		inline int32_t ConvertBoneIdToIndex(int32_t boneId) const
+		inline int32_t ConvertBoneIdToIndex(int32_t boneId) const&
 		{
 			if (m_boneTag.m_data.m_size == 0)
 			{
@@ -105,7 +105,7 @@ namespace rage
 		int32_t m_boneCount; //0x20 - 0x24
 
 		//rage::crSkeleton::GetTerminatingPartialBone see "33 D2 45 0F BF 48 ?" -0x15 for details
-		inline uint32_t GetTerminatingPartialBone(uint32_t boneIndex) const
+		inline uint32_t GetTerminatingPartialBone(uint32_t boneIndex) const&
 		{
 			rage::crBoneData* currentBone = &m_skeletonData->m_boneData[boneIndex];
 			rage::crBoneData* terminatingBone = nullptr;

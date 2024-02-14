@@ -27,7 +27,7 @@ auto Logger::GetModuleName() -> std::wstring
 
 	GetModuleFileNameW(GetActiveModule(), inBuf, std::size(inBuf));
 
-	auto str = std::wstring(inBuf);
+	const auto &str = std::wstring(inBuf);
 
 	auto seperator = str.find_last_of(L"\\");
 
