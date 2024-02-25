@@ -1,17 +1,36 @@
 #include "..\stdafx.h"
 
+
+std::vector<HookManager::MemoryBlock> HookManager::g_allocatedMemoryBlocks;
+
+void HookManager::FreeFunctionStubMemory()
+{
+	constexpr SIZE_T MEMORY_BLOCK_SIZE = 0x1000;
+
+	for (const auto& blockInfo : g_allocatedMemoryBlocks)
+	{
+		if (blockInfo.startAddress != nullptr)
+		{
+			DWORD oldProtect;
+			VirtualProtect(blockInfo.startAddress, MEMORY_BLOCK_SIZE, PAGE_NOACCESS, &oldProtect);
+			VirtualFree(blockInfo.startAddress, 0, MEM_RELEASE);
+		}
+	}
+	g_allocatedMemoryBlocks.clear();
+}
+
 PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, uint8_t type)
 {
 	// Size of each memory block. (= page size of VirtualAlloc)
-	constexpr uint64_t MEMORY_BLOCK_SIZE = 0x1000;
+	constexpr SIZE_T MEMORY_BLOCK_SIZE = 0x1000;
 
 	// Max range for seeking a memory block. (= 1024MB)
-	constexpr uint64_t MAX_MEMORY_RANGE = 0x40000000;
+	constexpr SIZE_T MAX_MEMORY_RANGE = 0x40000000;
 
-	static void* g_currentStub = nullptr;
-	static void* g_stubMemoryStart = nullptr;
+	static void* s_currentStub = nullptr;
+	static void* s_stubMemoryStart = nullptr;
 
-	if (!g_currentStub) 
+	if (!s_currentStub) 
 	{
 		SYSTEM_INFO si;
 		GetSystemInfo(&si);
@@ -42,15 +61,21 @@ PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, uint8_t ty
 
 		auto pVirtualAlloc2 = (decltype(&::VirtualAlloc2))GetProcAddress(GetModuleHandleW(L"kernelbase.dll"), "VirtualAlloc2");
 			
-		g_currentStub = pVirtualAlloc2(GetCurrentProcess(), nullptr, (SIZE_T)MEMORY_BLOCK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE, &param, 1);
-		if (g_currentStub != NULL)
-			g_stubMemoryStart = g_currentStub;
+		s_currentStub = pVirtualAlloc2(GetCurrentProcess(), nullptr, MEMORY_BLOCK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE, &param, 1);
+		if (s_currentStub != nullptr)
+		{
+			s_stubMemoryStart = s_currentStub;
+			MemoryBlock newBlockInfo;
+			newBlockInfo.startAddress = s_stubMemoryStart;
+			g_allocatedMemoryBlocks.push_back(newBlockInfo);
+
+		}
 	}
 
-	if (!g_currentStub)
+	if (!s_currentStub)
 		return nullptr;
 
-	char* code = (char*)g_currentStub;
+	char* code = (char*)s_currentStub;
 
 	*(uint8_t*)code = 0x48;
 	*(uint8_t*)(code + 1) = 0xb8 | type;
@@ -61,11 +86,11 @@ PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, uint8_t ty
 
 	*(uint64_t*)(code + 12) = 0xCCCCCCCCCCCCCCCC;
 
-	g_currentStub = (void*)((uint64_t)g_currentStub + 20);
+	s_currentStub = (void*)((uint64_t)s_currentStub + 20);
 
 	// the page is full, allocate a new page next time a stub is needed  
-	if (((uint64_t)g_currentStub - (uint64_t)g_stubMemoryStart) >= (MEMORY_BLOCK_SIZE - 20))
-		g_currentStub = nullptr;
+	if (((uint64_t)s_currentStub - (uint64_t)s_stubMemoryStart) >= (MEMORY_BLOCK_SIZE - 20))
+		s_currentStub = nullptr;
 
 	return code;
 }

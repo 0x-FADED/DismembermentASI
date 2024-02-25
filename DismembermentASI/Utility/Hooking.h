@@ -59,7 +59,7 @@ public:
 		DWORD oldProtect;
 		VirtualProtect((BYTE*)address, 5Ui64, PAGE_EXECUTE_READWRITE, &oldProtect);
 
-	//	*reinterpret_cast<PBYTE>(address) = 0xE8; // just in case we need to write a new call
+		*reinterpret_cast<PBYTE>(address) = 0xE8;
 		*reinterpret_cast<int32_t*>(address + 1) = distance;
 
 		VirtualProtect((BYTE*)address, 5Ui64, oldProtect, &oldProtect);
@@ -67,7 +67,14 @@ public:
 
 		return new CallHook<T>(address, orig);
 	}
+
+	static void FreeFunctionStubMemory();
 private:
+	struct MemoryBlock
+	{
+		void* startAddress;
+	};
+	static std::vector<MemoryBlock> g_allocatedMemoryBlocks;
 	static PVOID AllocateFunctionStub(PVOID origin, PVOID function, uint8_t type);
 	static inline ULONG_PTR AlignUp(ULONG_PTR stack, SIZE_T align);
 	static inline ULONG_PTR AlignDown(ULONG_PTR stack, SIZE_T align);

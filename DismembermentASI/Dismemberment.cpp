@@ -57,11 +57,16 @@ static auto CopyOffMatrixSet_Hook(const rage::crSkeleton& crSkel, uint32_t& draw
 				{
 					startBoneIndex = crSkel.m_skeletonData->ConvertBoneIdToIndex(it->second.startBoneId);
 					
-					if (it->second.endBoneId != -1)
-						lastSiblingIndex = CDynamicEntity__GetBoneIndexFromBoneTag(static_cast<CDynamicEntity>(pedGUID), it->second.endBoneId);
+					switch (it->second.endBoneId)
+					{
+					case -1:
+						lastSiblingIndex = crSkel.GetTerminatingPartialBone(startBoneIndex);
+						break;
 
-					else
-						lastSiblingIndex = crSkel.GetTerminatingPartialBone(startBoneIndex); /** rage__crSkeleton__GetTerminatingPartialBone(crSkel, startBoneIndex); **/
+					default:
+						lastSiblingIndex = CDynamicEntity__GetBoneIndexFromBoneTag(static_cast<CDynamicEntity>(pedGUID), it->second.endBoneId); /** rage__crSkeleton__GetTerminatingPartialBone(crSkel, startBoneIndex); **/
+						break;
+					}
 					
 				}
 
@@ -126,8 +131,11 @@ DLL_EXPORT void RemoveBoneDraw(Ped handle)
 
 void unload()
 {
-	for (auto& function : g_drawFunctions)
+	for (const auto& function : g_drawFunctions)
 	{
 		delete function;
 	}
+	g_drawFunctions.clear();
+	g_pedList.clear();
+	HookManager::FreeFunctionStubMemory();
 }
