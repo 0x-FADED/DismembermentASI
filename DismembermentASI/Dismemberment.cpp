@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "Game.h"
 
+#define DismembermentASI_Export
+#include "..\DismembermentASI\api_include\Dismemberment.h"
+
 using namespace Game;
-
-#define DLL_EXPORT extern "C" __declspec( dllexport )
-
-using Ped = int32_t;
 
 typedef std::uint16_t(*CopyOffMatrixSet)(const rage::crSkeleton&, uint32_t&, int32_t, CBaseModelInfo*, bool, uint16_t*, uint8_t, uint8_t, short, short, float);
 
@@ -111,13 +110,13 @@ void initialize()
 	LOG.Write(LogLevel::LOG_INFO, "Hooks successful!");
 }
 
-DLL_EXPORT void AddBoneDraw(Ped handle, int32_t start, int32_t end)
+void AddBoneDraw(Ped handle, int32_t start, int32_t end)
 {
 	g_pedList[handle].startBoneId = start;
 	g_pedList[handle].endBoneId = end;
 }
 
-DLL_EXPORT void RemoveBoneDraw(Ped handle)
+void RemoveBoneDraw(Ped handle)
 {
 	std::unique_lock<std::mutex> lock(g_mutex);
 

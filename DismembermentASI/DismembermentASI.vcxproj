@@ -194,6 +194,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="api_include\Dismemberment.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="rage\CBaseModelInfo.h" />
     <ClInclude Include="rage\CEntity.h" />

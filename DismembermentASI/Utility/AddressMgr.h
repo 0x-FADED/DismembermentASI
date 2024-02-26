@@ -33,7 +33,7 @@ struct LiteralHash // optimizations using modern c++ features
 class AddressPool //we are gonna store addresses as hashes instead of strings for faster lookup
 {
 private:
-	ankerl::unordered_dense::map<std::uint64_t, MemAddr<>> map;
+	ankerl::unordered_dense::segmented_map<std::uint64_t, MemAddr<>> map;
 	static LiteralHash* s_hash;
 public:
 	void insert(std::string_view key, const MemAddr<>& address);
@@ -43,7 +43,7 @@ public:
 class AddressMgr
 {
 private:
-	ankerl::unordered_dense::map<std::uint64_t, AddressPool*> items;
+	ankerl::unordered_dense::segmented_map<std::uint64_t, AddressPool*> items;
 	static LiteralHash* s_hash;
 public:
 	void clear();

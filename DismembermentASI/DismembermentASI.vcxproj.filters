@@ -53,6 +53,9 @@
     <ClInclude Include="rage\CBaseModelInfo.h">
       <Filter>rage</Filter>
     </ClInclude>
+    <ClInclude Include="api_include\Dismemberment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

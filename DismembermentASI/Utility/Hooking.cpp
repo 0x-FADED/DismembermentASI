@@ -1,7 +1,7 @@
 #include "..\stdafx.h"
 
 
-std::vector<HookManager::MemoryBlock> HookManager::g_allocatedMemoryBlocks;
+constinit std::vector<HookManager::MemoryBlock> HookManager::g_allocatedMemoryBlocks;
 
 void HookManager::FreeFunctionStubMemory()
 {
