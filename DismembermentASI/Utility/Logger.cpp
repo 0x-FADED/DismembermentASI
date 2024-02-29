@@ -27,7 +27,7 @@ auto Logger::GetModuleName() -> std::wstring
 
 	GetModuleFileNameW(GetActiveModule(), inBuf, std::size(inBuf));
 
-	const auto &str = std::wstring(inBuf);
+	const auto str = std::wstring(inBuf);
 
 	auto seperator = str.find_last_of(L"\\");
 
@@ -61,3 +61,5 @@ void Logger::Clear() const
 {
 	std::ofstream logFile(m_logFilePath, std::ofstream::out | std::ofstream::trunc);
 }
+
+std::unique_ptr<Logger> s_LOG = std::make_unique<Logger>(LogLevel::LOG_INFO, true);

@@ -38,7 +38,7 @@ public:
 	{
 		if (address != nullptr && *reinterpret_cast<PBYTE>(address) != 0xE8) // just in case measures
 		{
-			LOG.Write(LogLevel::LOG_ERROR, "wrong opcode! cannot hook and continue. expected opcode 0xE8");
+			s_LOG->Write(LogLevel::LOG_ERROR, "wrong opcode! cannot hook and continue. expected opcode 0xE8");
 			return nullptr;
 		}
 
@@ -51,7 +51,7 @@ public:
 
 			auto functionStub = AllocateFunctionStub((PVOID)(*reinterpret_cast<uintptr_t*>(__readgsqword(0x60) + 0x10)), (void*)target, Register);
 
-		//	LOG.Write(LogLevel::LOG_DEBUG, std::format("allocated stub memory at {:#X}", (intptr_t)functionStub));
+		//	s_LOG->Write(LogLevel::LOG_DEBUG, std::format("allocated stub memory at {:#X}", (intptr_t)functionStub));
 
 			 distance = static_cast<int32_t>((intptr_t)functionStub - (intptr_t)address - 5);
 		}

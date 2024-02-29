@@ -110,7 +110,7 @@ namespace rage
 			rage::crBoneData* currentBone = &m_skeletonData->m_boneData[boneIndex];
 			rage::crBoneData* terminatingBone = nullptr;
 
-			while (currentBone)
+			while(true)
 			{
 				int32_t nextSiblingIndex = currentBone->m_nextSiblingIndex;
 

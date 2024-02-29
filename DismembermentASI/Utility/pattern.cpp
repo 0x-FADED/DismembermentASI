@@ -50,7 +50,7 @@ auto Pattern::FindPattern(uintptr_t startAddress, uintptr_t endAddress, const ch
         }
     }
 
-    const auto dataStart = reinterpret_cast<uint8_t*>(startAddress);
+    const auto dataStart = std::bit_cast<uint8_t*>(startAddress);
     const auto dataEnd = dataStart + endAddress + 1;
     const auto patternSize = pattern.size();
 
@@ -62,7 +62,7 @@ auto Pattern::FindPattern(uintptr_t startAddress, uintptr_t endAddress, const ch
                 return PatternElements.second || (currentByte == PatternElements.first);
             }))
         {
-            return reinterpret_cast<uintptr_t>(iter);
+            return std::bit_cast<uintptr_t>(iter);
         }
     }
 

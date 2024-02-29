@@ -85,11 +85,11 @@ void initialize()
 {
 	if (!InititalizeGame())
 	{
-		LOG.Write(LogLevel::LOG_ERROR, "Failed to initialize game cannot continue.");
+		s_LOG->Write(LogLevel::LOG_ERROR, "Failed to initialize game cannot continue.");
 		return;
 	}
 
-	LOG.Write(LogLevel::LOG_INFO, "All patterns are valid proceeding to hook CopyOffMatrixSet calls.");
+	s_LOG->Write("All patterns are valid proceeding to hook CopyOffMatrixSet calls.");
 
 	auto& loc = *g_addresses.get("GTA5"); // using minhook and hooking the originial function would have been better
 
@@ -99,7 +99,7 @@ void initialize()
 
 	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_1"]), CopyOffMatrixSet_Hook));
 
-	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_2"]), CopyOffMatrixSet_Hook)); 
+	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_2"]), CopyOffMatrixSet_Hook));
 
 	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_3"]), CopyOffMatrixSet_Hook));
 
@@ -107,7 +107,7 @@ void initialize()
 
 	g_drawFunctions.push_back(HookManager::SetCall<CopyOffMatrixSet, NULL>(((PBYTE)loc["CopyOffMatrixSet_5"]), CopyOffMatrixSet_Hook));
 
-	LOG.Write(LogLevel::LOG_INFO, "Hooks successful!");
+	s_LOG->Write("Hooks successful!");
 }
 
 void AddBoneDraw(Ped handle, int32_t start, int32_t end)

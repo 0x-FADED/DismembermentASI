@@ -23,4 +23,4 @@ public:
 	void Write(LogLevel logLevel, std::string_view text) const;
 };
 
-static Logger LOG(LogLevel::LOG_INFO, true); // set LogLevel to LOG_DEBUG for debugging
+extern std::unique_ptr<Logger> s_LOG;

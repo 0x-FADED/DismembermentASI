@@ -1,6 +1,6 @@
 #pragma once
 
-struct LiteralHash // optimizations using modern c++ features
+struct LiteralHash
 {
 	uint64_t val; //0x00 - 0x08
 
@@ -16,6 +16,7 @@ struct LiteralHash // optimizations using modern c++ features
 		return _FNV1A(str.data(), str.length());
 	}
 
+private:
 	static constexpr auto _FNV1A(const char* str, size_t length) -> uint64_t
 	{
 		uint64_t hash = 0x100000001B3ull;
