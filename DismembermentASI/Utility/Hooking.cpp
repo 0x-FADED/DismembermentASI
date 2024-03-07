@@ -67,7 +67,7 @@ PVOID HookManager::AllocateFunctionStub(PVOID origin, PVOID function, uint8_t ty
 			s_stubMemoryStart = s_currentStub;
 			MemoryBlock newBlockInfo;
 			newBlockInfo.startAddress = s_stubMemoryStart;
-			g_allocatedMemoryBlocks.push_back(newBlockInfo);
+			g_allocatedMemoryBlocks.emplace_back(newBlockInfo);
 
 		}
 	}

@@ -11,7 +11,7 @@ struct LiteralHash
 	{
 	}
 
-	static constexpr auto FNV1A(const std::string_view str) -> uint64_t
+	static constexpr auto FNV1A(std::string_view str) -> uint64_t
 	{
 		return _FNV1A(str.data(), str.length());
 	}
