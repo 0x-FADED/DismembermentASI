@@ -1,3 +1,6 @@
 [submodule "external/unordered_dense"]
 	path = external/unordered_dense
 	url = https://github.com/martinus/unordered_dense.git
+[submodule "external/flat_map"]
+	path = external/flat_map
+	url = https://github.com/Flast/flat_map

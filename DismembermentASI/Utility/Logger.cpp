@@ -1,7 +1,7 @@
 #include "..\stdafx.h"
 
 Logger::Logger(const LogLevel logLevel, bool truncate) noexcept
-	: m_logFilePath(std::filesystem::current_path().append(std::format(L"{}.log", GetModuleName().data())))
+	: m_logFilePath(std::filesystem::current_path().append(std::format("{}.log", GetModuleName().data())))
 	, m_logLevel(logLevel)
 {
 	if (truncate)
@@ -21,20 +21,20 @@ inline auto Logger::GetActiveModule() -> HMODULE
 	return hModule;
 }
 
-auto Logger::GetModuleName() -> std::wstring
+auto Logger::GetModuleName() -> std::string
 {
-	WCHAR inBuf[MAX_PATH];
+	CHAR inBuf[MAX_PATH];
 
-	GetModuleFileNameW(GetActiveModule(), inBuf, std::size(inBuf));
+	GetModuleFileName(GetActiveModule(), inBuf, std::size(inBuf));
 
-	const auto str = std::wstring(inBuf);
+	const auto str = std::string(inBuf);
 
-	auto seperator = str.find_last_of(L"\\");
+	auto seperator = str.find_last_of("\\");
 
-	if (seperator != std::wstring::npos)
+	if (seperator != std::string::npos)
 		seperator += 1;
 
-	return str.substr(seperator, str.find_last_of(L".") - seperator);
+	return str.substr(seperator, str.find_last_of(".") - seperator);
 }
 
 void Logger::Write(std::string_view text) const

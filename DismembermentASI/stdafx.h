@@ -3,7 +3,6 @@
 #define NOMINMAX
 #include <windows.h>
 #include <vector>
-#include <map>
 #include <string>
 #include <fstream>
 #include <chrono>
@@ -11,7 +10,8 @@
 #include <filesystem>
 #include <cassert>
 
-#include "..\external\unordered_dense\include\ankerl\unordered_dense.h"
+#include "include\ankerl\unordered_dense.h"
+#include "flat_map\flat_map.hpp"
 
 #include "Utility/MemAddr.h"
 #include "Utility/pattern.h"

@@ -13,7 +13,7 @@ class Logger final
 private:
 	static constinit inline const char* _logLevelPrefixes[4] = { "", "DEBUG", "INFO", "ERROR" };
 	static inline auto GetActiveModule() -> HMODULE;
-	static auto GetModuleName() -> std::wstring;
+	static auto GetModuleName() -> std::string;
 	std::filesystem::path m_logFilePath;
 	LogLevel m_logLevel = LogLevel::LOG_NONE;
 	void Clear() const;

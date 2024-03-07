@@ -23,7 +23,7 @@ struct DrawSkeletonInfo
 
 constinit std::vector<CallHook<CopyOffMatrixSet>*> g_drawFunctions;
 
-static std::map<Ped, DrawSkeletonInfo> g_pedList;
+static flat_map::flat_map<Ped, DrawSkeletonInfo> g_pedList;
 
 static std::mutex g_mutex;
 
