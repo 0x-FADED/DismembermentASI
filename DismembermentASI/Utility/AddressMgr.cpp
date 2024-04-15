@@ -1,6 +1,6 @@
 #include "..\stdafx.h"
 
-void AddressPool::insert(std::string_view key, const MemAddr<>& address)
+void AddressPool::insert(std::string_view key, MemAddr<> address)
 {
 	map.try_emplace(s_hash->FNV1A(key), address);
 }

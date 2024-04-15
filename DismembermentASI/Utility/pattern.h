@@ -10,7 +10,7 @@ private:
 
 	static auto FindPattern(uintptr_t startAddress, uintptr_t endAddress, const char* mask) -> uintptr_t;
 public:
-	bool bSuccess;
+	bool bSuccess = false;
 
 	explicit Pattern(std::string_view pattern) noexcept;
 	inline MemAddr<> find() const

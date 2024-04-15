@@ -19,7 +19,7 @@ bool Pattern::getPattern()
 	static const uintptr_t moduleEnd = moduleBase + static_cast<uintptr_t>(reinterpret_cast<PIMAGE_NT_HEADERS64>(moduleBase + reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase)->e_lfanew)->OptionalHeader.SizeOfImage);
 
 	const uintptr_t address = FindPattern(moduleBase, moduleEnd, m_pattern);
-	if (address != NULL)
+	if (address != 0)
 	{
 		m_address = MemAddr(address);
         return true;
@@ -39,7 +39,7 @@ auto Pattern::FindPattern(uintptr_t startAddress, uintptr_t endAddress, const ch
         if (mask[i] != '?')
         {
             uint8_t value;
-            std::from_chars(&mask[i], nullptr, value, 16);
+            std::from_chars(&mask[i], &mask[i + 2], value, 16);
             pattern.emplace_back(value, false);
             i += 3;
         }
@@ -50,21 +50,17 @@ auto Pattern::FindPattern(uintptr_t startAddress, uintptr_t endAddress, const ch
         }
     }
 
-    const auto dataStart = std::bit_cast<uint8_t*>(startAddress);
-    const auto dataEnd = dataStart + endAddress + 1;
-    const auto patternSize = pattern.size();
+	const auto dataStart = std::bit_cast<uint8_t*>(startAddress);
+	const auto dataEnd = static_cast<uint8_t*>(dataStart + endAddress + 1);
 
-    for (auto iter = dataStart; iter + patternSize <= dataEnd; ++iter)
-    {
-        if (std::equal(iter, iter + patternSize, pattern.begin(),
-            [](uint8_t currentByte, const std::pair<uint8_t, bool>& PatternElements)
-            {
-                return PatternElements.second || (currentByte == PatternElements.first);
-            }))
-        {
-            return std::bit_cast<uintptr_t>(iter);
-        }
-    }
+	auto sig = std::search(dataStart, dataEnd, pattern.begin(), pattern.end(),
+		[](uint8_t currentByte, const std::pair<uint8_t, bool>& patternElements)
+		{
+			return patternElements.second || (currentByte == patternElements.first);
+		});
 
-    return NULL;
+	if (sig == dataEnd)
+		return 0;
+
+	return std::distance<uint8_t*>(dataStart, sig) + startAddress;
 }

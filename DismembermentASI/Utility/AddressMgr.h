@@ -37,7 +37,7 @@ private:
 	ankerl::unordered_dense::segmented_map<std::uint64_t, MemAddr<>> map;
 	static LiteralHash* s_hash;
 public:
-	void insert(std::string_view key, const MemAddr<>& address);
+	void insert(std::string_view key, MemAddr<> address);
 	auto operator[](LiteralHash key) noexcept -> void*;
 };
 
